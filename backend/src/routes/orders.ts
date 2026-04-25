@@ -101,6 +101,7 @@ router.get('/', async (req: any, res) => {
       id: true,
       description: true,
       status: true,
+      priority: true,
       customerName: true,
       deliveryCity: true,
       isUrban: true,

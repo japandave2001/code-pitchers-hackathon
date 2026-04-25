@@ -12,6 +12,7 @@ import {
 import BoltIcon from '@mui/icons-material/Bolt'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import InfoTip from '../components/InfoTip'
 
 export default function Signup() {
   const { signup } = useAuth()
@@ -68,6 +69,7 @@ export default function Signup() {
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               sx={{ mb: 2 }}
+              InputProps={{ endAdornment: <InfoTip title="Your business or brand name. Displayed on your dashboard and in tracking pages shared with customers." /> }}
             />
             <TextField
               label="Email"
@@ -77,6 +79,7 @@ export default function Signup() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               sx={{ mb: 2 }}
+              InputProps={{ endAdornment: <InfoTip title="Your business email. Used for login and to receive order notifications." /> }}
             />
             <TextField
               label="Phone"
@@ -85,6 +88,7 @@ export default function Signup() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               sx={{ mb: 2 }}
+              InputProps={{ endAdornment: <InfoTip title="Your primary business contact number. Our support team may reach out on this number." /> }}
             />
             <TextField
               label="Password"
@@ -94,6 +98,7 @@ export default function Signup() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               sx={{ mb: 2 }}
+              InputProps={{ endAdornment: <InfoTip title="Choose a strong password. You'll use this along with your email to log in." /> }}
             />
             {error && (
               <Alert severity="error" sx={{ mb: 2 }}>

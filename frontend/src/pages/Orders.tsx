@@ -15,10 +15,13 @@ import {
   Button,
   IconButton,
   Chip,
+  MenuItem,
+  CircularProgress,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
+import FilterListOffIcon from '@mui/icons-material/FilterListOff'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import StatusChip from '../components/StatusChip'
@@ -28,6 +31,7 @@ type Order = {
   id: string
   description: string
   status: string
+  priority: string
   customerName: string
   deliveryCity: string
   isUrban: boolean
@@ -37,22 +41,86 @@ type Order = {
   trackingToken: string
 }
 
+const ALL_STATUSES = [
+  'PENDING', 'CONFIRMED', 'PICKED_UP', 'AT_MAIN_HUB',
+  'IN_TRANSIT', 'IN_TRANSIT_TO_LOCAL_HUB', 'AT_LOCAL_HUB',
+  'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED',
+]
+
+const ALL_PRIORITIES = ['STANDARD', 'EXPRESS', 'SAME_DAY']
+
+const ROUTE_OPTIONS = [
+  { value: '', label: 'All Routes' },
+  { value: 'urban', label: 'Urban' },
+  { value: 'semi-urban', label: 'Semi-Urban' },
+]
+
 export default function Orders() {
   const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [priorityFilter, setPriorityFilter] = useState('')
+  const [routeFilter, setRouteFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
   useEffect(() => {
-    api.get('/orders').then((res) => setOrders(res.data)).catch(() => {})
+    api.get('/orders')
+      .then((res) => setOrders(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
+  const hasFilters = search || statusFilter || priorityFilter || routeFilter || dateFrom || dateTo
+
+  const clearFilters = () => {
+    setSearch('')
+    setStatusFilter('')
+    setPriorityFilter('')
+    setRouteFilter('')
+    setDateFrom('')
+    setDateTo('')
+  }
+
   const filtered = useMemo(() => {
-    if (!search.trim()) return orders
-    const q = search.toLowerCase()
-    return orders.filter(
-      (o) => o.customerName.toLowerCase().includes(q) || o.deliveryCity.toLowerCase().includes(q)
-    )
-  }, [orders, search])
+    let result = orders
+
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (o) => o.customerName.toLowerCase().includes(q) || o.deliveryCity.toLowerCase().includes(q)
+      )
+    }
+
+    if (statusFilter) {
+      result = result.filter((o) => o.status === statusFilter)
+    }
+
+    if (priorityFilter) {
+      result = result.filter((o) => o.priority === priorityFilter)
+    }
+
+    if (routeFilter === 'urban') {
+      result = result.filter((o) => o.isUrban)
+    } else if (routeFilter === 'semi-urban') {
+      result = result.filter((o) => !o.isUrban)
+    }
+
+    if (dateFrom) {
+      const from = new Date(dateFrom)
+      result = result.filter((o) => new Date(o.createdAt) >= from)
+    }
+
+    if (dateTo) {
+      const to = new Date(dateTo)
+      to.setHours(23, 59, 59, 999)
+      result = result.filter((o) => new Date(o.createdAt) <= to)
+    }
+
+    return result
+  }, [orders, search, statusFilter, priorityFilter, routeFilter, dateFrom, dateTo])
 
   return (
     <Layout title="Orders">
@@ -69,12 +137,13 @@ export default function Orders() {
 
       <Card>
         <CardContent>
+          {/* Search bar */}
           <TextField
             placeholder="Search by customer name or city..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             fullWidth
-            sx={{ mb: 3 }}
+            sx={{ mb: 2 }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -84,6 +153,89 @@ export default function Orders() {
             }}
           />
 
+          {/* Filter row */}
+          <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+            <TextField
+              select
+              label="Status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              size="small"
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value="">All Statuses</MenuItem>
+              {ALL_STATUSES.map((s) => (
+                <MenuItem key={s} value={s}>{s.replace(/_/g, ' ')}</MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              select
+              label="Priority"
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              size="small"
+              sx={{ minWidth: 150 }}
+            >
+              <MenuItem value="">All Priorities</MenuItem>
+              {ALL_PRIORITIES.map((p) => (
+                <MenuItem key={p} value={p}>{p.replace(/_/g, ' ')}</MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              select
+              label="Route"
+              value={routeFilter}
+              onChange={(e) => setRouteFilter(e.target.value)}
+              size="small"
+              sx={{ minWidth: 150 }}
+            >
+              {ROUTE_OPTIONS.map((r) => (
+                <MenuItem key={r.value} value={r.value}>{r.label}</MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              label="From"
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 150 }}
+            />
+
+            <TextField
+              label="To"
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 150 }}
+            />
+
+            {hasFilters && (
+              <Button
+                size="small"
+                startIcon={<FilterListOffIcon />}
+                onClick={clearFilters}
+                sx={{ textTransform: 'none' }}
+              >
+                Clear
+              </Button>
+            )}
+          </Box>
+
+          {/* Results count */}
+          {!loading && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {filtered.length} of {orders.length} orders
+              {hasFilters ? ' (filtered)' : ''}
+            </Typography>
+          )}
+
           <Paper variant="outlined" sx={{ borderRadius: 2 }}>
             <Table>
               <TableHead>
@@ -92,17 +244,24 @@ export default function Orders() {
                   <TableCell sx={{ fontWeight: 600 }}>Customer</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>City</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Route</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Priority</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 600 }} align="right">Charge</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Order Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filtered.length === 0 ? (
+                {loading ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                      {orders.length === 0 ? 'No orders yet.' : 'No orders match your search.'}
+                    <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                      <CircularProgress size={32} />
+                    </TableCell>
+                  </TableRow>
+                ) : filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                      {orders.length === 0 ? 'No orders yet.' : 'No orders match your filters.'}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -127,6 +286,18 @@ export default function Orders() {
                             fontSize: '0.65rem',
                             bgcolor: o.isUrban ? '#E8F5E9' : '#FFEBEE',
                             color: o.isUrban ? '#2E7D32' : '#C62828',
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          size="small"
+                          label={o.priority?.replace(/_/g, ' ') || 'STANDARD'}
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '0.65rem',
+                            bgcolor: o.priority === 'SAME_DAY' ? '#FCE4EC' : o.priority === 'EXPRESS' ? '#FFF3E0' : '#F5F5F5',
+                            color: o.priority === 'SAME_DAY' ? '#AD1457' : o.priority === 'EXPRESS' ? '#E65100' : '#616161',
                           }}
                         />
                       </TableCell>

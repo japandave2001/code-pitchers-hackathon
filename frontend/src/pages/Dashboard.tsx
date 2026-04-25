@@ -12,6 +12,8 @@ import {
   TableRow,
   Paper,
   IconButton,
+  Skeleton,
+  CircularProgress,
 } from '@mui/material'
 import InventoryIcon from '@mui/icons-material/Inventory2'
 import ScheduleIcon from '@mui/icons-material/Schedule'
@@ -55,10 +57,18 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [stats, setStats] = useState<Stats | null>(null)
   const [orders, setOrders] = useState<Order[]>([])
+  const [loadingStats, setLoadingStats] = useState(true)
+  const [loadingOrders, setLoadingOrders] = useState(true)
 
   useEffect(() => {
-    api.get('/vendor/stats').then((res) => setStats(res.data)).catch(() => {})
-    api.get('/orders').then((res) => setOrders(res.data.slice(0, 10))).catch(() => {})
+    api.get('/vendor/stats')
+      .then((res) => setStats(res.data))
+      .catch(() => {})
+      .finally(() => setLoadingStats(false))
+    api.get('/orders')
+      .then((res) => setOrders(res.data.slice(0, 10)))
+      .catch(() => {})
+      .finally(() => setLoadingOrders(false))
   }, [])
 
   return (
@@ -91,12 +101,21 @@ export default function Dashboard() {
                     {s.icon}
                   </Box>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                      {stats ? (stats as any)[s.key] : '—'}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {s.label}
-                    </Typography>
+                    {loadingStats ? (
+                      <>
+                        <Skeleton variant="text" width={60} height={36} />
+                        <Skeleton variant="text" width={80} height={20} />
+                      </>
+                    ) : (
+                      <>
+                        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                          {stats ? (stats as any)[s.key] : '—'}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {s.label}
+                        </Typography>
+                      </>
+                    )}
                   </Box>
                 </Box>
               </CardContent>
@@ -119,12 +138,18 @@ export default function Dashboard() {
                   <TableCell sx={{ fontWeight: 600 }}>City</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 600 }} align="right">Charge</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Order Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {orders.length === 0 ? (
+                {loadingOrders ? (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                      <CircularProgress size={32} />
+                    </TableCell>
+                  </TableRow>
+                ) : orders.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                       No orders yet. Create your first order to get started.

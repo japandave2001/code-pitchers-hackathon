@@ -18,6 +18,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import CheckIcon from '@mui/icons-material/Check'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
+import InfoTip from '../components/InfoTip'
 import PriceCalculator from '../components/PriceCalculator'
 import api from '../api/axios'
 
@@ -102,26 +103,41 @@ export default function CreateOrder() {
               {step === 0 && (
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <TextField label="Description" fullWidth required value={form.description} onChange={setField('description')} />
+                    <TextField
+                      label="Description"
+                      fullWidth required value={form.description} onChange={setField('description')}
+                      InputProps={{ endAdornment: <InfoTip title="Brief description of the parcel contents, e.g. 'Mobile Phone', 'Laptop', 'Books'" /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField label="Weight (kg)" type="number" fullWidth required value={form.weight} onChange={setField('weight')} />
+                    <TextField
+                      label="Weight (kg)"
+                      type="number" fullWidth required value={form.weight} onChange={setField('weight')}
+                      InputProps={{ endAdornment: <InfoTip title="Actual weight of the parcel in kilograms. Used along with volumetric weight to calculate shipping charges." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField select label="Priority" fullWidth value={form.priority} onChange={setField('priority')}>
+                    <TextField
+                      select
+                      label="Priority"
+                      fullWidth value={form.priority} onChange={setField('priority')}
+                      SelectProps={{ IconComponent: () => null }}
+                      InputProps={{ endAdornment: <InfoTip title="Standard: 3-5 days. Express (1.5x charge): 1-2 days. Same Day (2x charge): delivered within hours." /> }}
+                    >
                       <MenuItem value="STANDARD">Standard</MenuItem>
-                      <MenuItem value="EXPRESS">Express (1.5×)</MenuItem>
-                      <MenuItem value="SAME_DAY">Same Day (2×)</MenuItem>
+                      <MenuItem value="EXPRESS">Express (1.5x)</MenuItem>
+                      <MenuItem value="SAME_DAY">Same Day (2x)</MenuItem>
                     </TextField>
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
-                      label="Dimensions L×B×H (cm) — optional"
+                      label="Dimensions LxBxH (cm)"
                       placeholder="e.g. 30x20x10"
                       fullWidth
                       value={form.dimensions}
                       onChange={setField('dimensions')}
-                      helperText="Used to compute volumetric weight (L×B×H ÷ 5000). Leave blank to bill on actual weight."
+                      helperText="Optional — leave blank to bill on actual weight only."
+                      InputProps={{ endAdornment: <InfoTip title="Enter parcel dimensions in centimeters (e.g. 30x20x10). Used to calculate volumetric weight. If volumetric weight exceeds actual weight, the higher value is billed." /> }}
                     />
                   </Grid>
                 </Grid>
@@ -130,19 +146,39 @@ export default function CreateOrder() {
               {step === 1 && (
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <TextField label="Pickup Address" fullWidth required value={form.pickupAddress} onChange={setField('pickupAddress')} />
+                    <TextField
+                      label="Pickup Address"
+                      fullWidth required value={form.pickupAddress} onChange={setField('pickupAddress')}
+                      InputProps={{ endAdornment: <InfoTip title="Full address of your warehouse or store where the parcel will be collected from." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField label="City" fullWidth required value={form.pickupCity} onChange={setField('pickupCity')} />
+                    <TextField
+                      label="Pickup City"
+                      fullWidth required value={form.pickupCity} onChange={setField('pickupCity')}
+                      InputProps={{ endAdornment: <InfoTip title="City where your warehouse/store is located. This determines the shipping zone and pricing." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField label="Pincode" fullWidth required value={form.pickupPincode} onChange={setField('pickupPincode')} />
+                    <TextField
+                      label="Pincode"
+                      fullWidth required value={form.pickupPincode} onChange={setField('pickupPincode')}
+                      InputProps={{ endAdornment: <InfoTip title="6-digit postal code of the pickup location." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField label="Contact Name" fullWidth required value={form.pickupContact} onChange={setField('pickupContact')} />
+                    <TextField
+                      label="Contact Name"
+                      fullWidth required value={form.pickupContact} onChange={setField('pickupContact')}
+                      InputProps={{ endAdornment: <InfoTip title="Name of the person at the pickup location who will hand over the parcel to our delivery agent." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField label="Contact Phone" fullWidth required value={form.pickupPhone} onChange={setField('pickupPhone')} />
+                    <TextField
+                      label="Contact Phone"
+                      fullWidth required value={form.pickupPhone} onChange={setField('pickupPhone')}
+                      InputProps={{ endAdornment: <InfoTip title="Phone number of the pickup contact. Our agent will call this number upon arrival." /> }}
+                    />
                   </Grid>
                 </Grid>
               )}
@@ -150,22 +186,46 @@ export default function CreateOrder() {
               {step === 2 && (
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <TextField label="Delivery Address" fullWidth required value={form.deliveryAddress} onChange={setField('deliveryAddress')} />
+                    <TextField
+                      label="Delivery Address"
+                      fullWidth required value={form.deliveryAddress} onChange={setField('deliveryAddress')}
+                      InputProps={{ endAdornment: <InfoTip title="Complete delivery address including flat/house number, street, and landmark." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField label="City" fullWidth required value={form.deliveryCity} onChange={setField('deliveryCity')} />
+                    <TextField
+                      label="Delivery City"
+                      fullWidth required value={form.deliveryCity} onChange={setField('deliveryCity')}
+                      InputProps={{ endAdornment: <InfoTip title="Destination city. Along with pickup city, this determines the shipping zone (Local, Zonal, Metro, National)." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField label="Pincode" fullWidth required value={form.deliveryPincode} onChange={setField('deliveryPincode')} />
+                    <TextField
+                      label="Pincode"
+                      fullWidth required value={form.deliveryPincode} onChange={setField('deliveryPincode')}
+                      InputProps={{ endAdornment: <InfoTip title="6-digit postal code of the delivery location." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField label="Customer Name" fullWidth required value={form.customerName} onChange={setField('customerName')} />
+                    <TextField
+                      label="Customer Name"
+                      fullWidth required value={form.customerName} onChange={setField('customerName')}
+                      InputProps={{ endAdornment: <InfoTip title="Name of the person receiving the parcel. This will appear on the tracking page." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField label="Customer Phone" fullWidth required value={form.customerPhone} onChange={setField('customerPhone')} />
+                    <TextField
+                      label="Customer Phone"
+                      fullWidth required value={form.customerPhone} onChange={setField('customerPhone')}
+                      InputProps={{ endAdornment: <InfoTip title="Recipient's phone number. The delivery agent will contact this number for last-mile delivery." /> }}
+                    />
                   </Grid>
                   <Grid item xs={12}>
-                    <TextField label="Customer Email (optional)" type="email" fullWidth value={form.customerEmail} onChange={setField('customerEmail')} />
+                    <TextField
+                      label="Customer Email (optional)"
+                      type="email" fullWidth value={form.customerEmail} onChange={setField('customerEmail')}
+                      InputProps={{ endAdornment: <InfoTip title="If provided, the customer will receive a tracking link via email when the order is created." /> }}
+                    />
                   </Grid>
                 </Grid>
               )}

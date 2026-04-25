@@ -404,11 +404,25 @@ const agentSpecs = [
   { name: 'Ganesh Wagh',      phone: '9100000006', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Nashik' },
   { name: 'Pravin Meshram',   phone: '9100000007', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Nagpur' },
 
-  // ── Gujarat ──
+  // ── Gujarat — Ahmedabad Main Hub ──
   { name: 'Hardik Patel',     phone: '9100000010', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Ahmedabad' },
+  { name: 'Bhavesh Joshi',    phone: '9100000200', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Ahmedabad' },
   { name: 'Krupa Shah',       phone: '9100000011', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Ahmedabad' },
+  { name: 'Darshan Mehta',    phone: '9100000201', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Ahmedabad' },
+  { name: 'Ravi Solanki',     phone: '9100000202', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Ahmedabad' },
+  { name: 'Priya Chauhan',    phone: '9100000203', vehicle: 'VAN',   agentType: 'LAST_MILE', hubCity: 'Ahmedabad' },
+  { name: 'Ketan Parmar',     phone: '9100000204', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Ahmedabad' },
+  // ── Gujarat — Surat Local Hub ──
   { name: 'Jayesh Desai',     phone: '9100000012', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Surat' },
+  { name: 'Mitesh Savani',    phone: '9100000205', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Surat' },
+  { name: 'Hetal Kapadia',    phone: '9100000206', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Surat' },
+  { name: 'Nikunj Patel',     phone: '9100000207', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Surat' },
+  { name: 'Riddhi Doshi',     phone: '9100000208', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Surat' },
+  // ── Gujarat — Vadodara Local Hub ──
   { name: 'Nisha Rathod',     phone: '9100000013', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Vadodara' },
+  { name: 'Chirag Bhatt',     phone: '9100000209', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Vadodara' },
+  { name: 'Maulik Thakor',    phone: '9100000210', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Vadodara' },
+  { name: 'Snehal Pandya',    phone: '9100000211', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Vadodara' },
 
   // ── Delhi / NCR ──
   { name: 'Vikram Singh',     phone: '9100000020', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Delhi' },

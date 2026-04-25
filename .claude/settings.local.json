@@ -20,7 +20,11 @@
       "Bash(npx tsx *)",
       "Bash(npm --version)",
       "Bash(npm ls *)",
-      "PowerShell(Set-Location D:\\\\code-pitchers-hackathon\\\\frontend; if \\(Test-Path node_modules\\) { \\(Get-ChildItem node_modules -Directory | Measure-Object\\).Count } else { 0 })"
+      "PowerShell(Set-Location D:\\\\code-pitchers-hackathon\\\\frontend; if \\(Test-Path node_modules\\) { \\(Get-ChildItem node_modules -Directory | Measure-Object\\).Count } else { 0 })",
+      "Bash(psql -U postgres -h localhost -d swiftdrop -t -A -c \"SELECT \\\\\"apiKey\\\\\" FROM \\\\\"Vendor\\\\\" LIMIT 1\")",
+      "Bash(curl -s http://localhost:3000/api/orders -H \"x-api-key: $\\(psql -U postgres -h localhost -d swiftdrop -t -A -c \"SELECT \\\\\"apiKey\\\\\" FROM \\\\\"Vendor\\\\\" LIMIT 1\" \\)\")",
+      "Bash(curl -s http://localhost:3000/api/orders -H \"x-api-key: cmoebt982004ecg0eq08qhk3d\")",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); print\\(json.dumps\\(data[0], indent=2\\)\\) if data else print\\('empty'\\)\")"
     ]
   }
 }
