@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { prisma } from '../lib/prisma'
 import { flexAuth } from '../middleware/auth'
 import { resolveRoute, findNearestLocalHub } from '../utils/routing'
+import { sendStatusEmail } from '../lib/email'
 
 const router = Router()
 
@@ -48,6 +49,10 @@ router.post('/', async (req: any, res) => {
       assignedHubId: mainHub?.id || null,
     },
   })
+
+  // Kick off the "Order Placed" email — fire and forget so the API response
+  // isn't blocked by SMTP latency.
+  sendStatusEmail(order).catch((e) => console.error('[email] post-create:', e))
 
   res.json({
     id: order.id,
@@ -123,6 +128,12 @@ router.put('/:id/status', async (req: any, res) => {
     data: { status },
     include: { assignedHub: true, agent: { include: { hub: true } } },
   })
+
+  // Notify the customer if the status actually changed.
+  if (order.status !== updated.status) {
+    sendStatusEmail(updated).catch((e) => console.error('[email] post-status:', e))
+  }
+
   const localHub = !updated.isUrban ? await findNearestLocalHub(updated.deliveryCity) : null
   res.json({ ...updated, localHub })
 })
@@ -161,6 +172,10 @@ router.post('/:id/dispatch', async (req: any, res) => {
     data: { agentId: agent.id, status: 'CONFIRMED' },
     include: { agent: { include: { hub: true } }, assignedHub: true },
   })
+
+  // Dispatch always flips PENDING → CONFIRMED, so always notify.
+  sendStatusEmail(updated).catch((e) => console.error('[email] post-dispatch:', e))
+
   const localHub = !updated.isUrban ? await findNearestLocalHub(updated.deliveryCity) : null
   res.json({ ...updated, localHub })
 })
@@ -170,10 +185,13 @@ router.delete('/:id', async (req: any, res) => {
   if (!order || order.vendorId !== req.vendor.id) {
     return res.status(404).json({ error: 'Order not found' })
   }
-  await prisma.order.update({
+  const updated = await prisma.order.update({
     where: { id: req.params.id },
     data: { status: 'CANCELLED' },
   })
+  if (order.status !== 'CANCELLED') {
+    sendStatusEmail(updated).catch((e) => console.error('[email] post-cancel:', e))
+  }
   res.json({ ok: true })
 })
 
