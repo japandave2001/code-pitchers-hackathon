@@ -11,7 +11,12 @@
       "Bash(pnpm turbo *)",
       "Bash(pnpm *)",
       "Bash(prisma --version)",
-      "Bash(xargs ls *)"
+      "Bash(xargs ls *)",
+      "Bash(psql -U postgres -h localhost -tc \"SELECT 1 FROM pg_database WHERE datname = 'swiftdrop'\")",
+      "Bash(brew --prefix postgresql@*)",
+      "Read(//opt/homebrew/opt/**)",
+      "Read(//Applications/Postgres.app/Contents/**)",
+      "Bash(node -e ' *)"
     ]
   }
 }

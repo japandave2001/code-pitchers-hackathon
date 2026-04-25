@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import path from 'node:path'
 import { defineConfig } from 'prisma/config'
 
@@ -11,5 +12,8 @@ export default defineConfig({
       const pool = new Pool({ connectionString: process.env.DATABASE_URL })
       return new PrismaPg(pool)
     },
+  },
+  datasource: {
+    url: process.env.DATABASE_URL!,
   },
 })

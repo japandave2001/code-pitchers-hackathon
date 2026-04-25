@@ -1,6 +1,6 @@
 CLAUDE.md — SwiftDrop: Last Mile Delivery SaaS
 
-## What We're Building
+## What This Is
 
 SwiftDrop is a B2B SaaS where vendors (like Amazon, Flipkart, or small D2C brands) sign up,
 log in, and submit delivery orders. They can either use the UI or hit our API directly.
@@ -10,61 +10,94 @@ We handle the order intake, show them their orders, and let anyone track a parce
 
 ---
 
-## Tech Stack
+## Monorepo Setup
 
-- **Frontend:** React + Vite + Material UI (MUI v5)
-- **Backend:** Express + TypeScript (keep it simple, avoid over-engineering)
-- **Database:** PostgreSQL + Prisma ORM
-- **Auth:** JWT stored in localStorage
+- **Package manager:** pnpm (v10.27.0) with workspaces
+- **Task runner:** Turborepo
+- **Workspaces:** `frontend/`, `backend/`
+
+### Commands
+
+```bash
+pnpm dev          # Start both frontend (5173) and backend (3000) via Turbo
+pnpm build        # Build both packages
+pnpm --filter backend prisma:generate   # Regenerate Prisma client
+pnpm --filter backend prisma:migrate    # Run migrations
+```
 
 ---
 
-## Folder Structure
+## Tech Stack
+
+| Layer      | Tech                                                     |
+|------------|----------------------------------------------------------|
+| Frontend   | React 18 + Vite 5 + MUI v5 + React Router v6            |
+| Backend    | Express 4 + TypeScript (tsx for dev)                     |
+| Database   | PostgreSQL + Prisma 7 (adapter pattern with `pg` driver) |
+| Auth       | JWT (7-day expiry) stored in localStorage + API key auth |
+
+---
+
+## Folder Structure (current state)
 
 ```
 swiftdrop/
+├── package.json              # Root — pnpm workspaces + turbo scripts
+├── pnpm-workspace.yaml       # Workspaces: frontend, backend
+├── turbo.json                # Task config: dev, build, prisma tasks
+│
 ├── backend/
+│   ├── prisma.config.ts      # Prisma 7 config — dotenv, adapter, datasource URL
 │   ├── prisma/
-│   │   └── schema.prisma
+│   │   ├── schema.prisma     # Vendor + Order models (NO url in datasource — Prisma 7 style)
+│   │   └── migrations/       # Applied: 20260425094748_init
 │   ├── src/
+│   │   ├── index.ts          # Express app — cors, json, route mounting
 │   │   ├── routes/
-│   │   │   ├── auth.ts
-│   │   │   ├── orders.ts
-│   │   │   └── tracking.ts
+│   │   │   ├── auth.ts       # POST /signup, POST /login, GET /me (DONE)
+│   │   │   ├── orders.ts     # CRUD + status update (DONE)
+│   │   │   ├── tracking.ts   # GET /:token — public (DONE)
+│   │   │   └── vendor.ts     # GET /stats — order counts by status (DONE)
 │   │   ├── middleware/
-│   │   │   └── auth.ts         # JWT check
-│   │   ├── lib/
-│   │   │   └── prisma.ts       # Prisma client singleton
-│   │   └── index.ts
-│   ├── .env
-│   └── package.json
+│   │   │   └── auth.ts       # flexAuth (JWT or API key) + jwtOnly
+│   │   └── lib/
+│   │       └── prisma.ts     # Prisma client singleton with pg adapter
+│   ├── .env                  # DATABASE_URL, JWT_SECRET, PORT
+│   ├── package.json
+│   └── tsconfig.json
 │
 └── frontend/
     ├── src/
     │   ├── api/
-    │   │   └── axios.ts         # Axios instance with base URL + auth header
-    │   ├── pages/
-    │   │   ├── Login.tsx
-    │   │   ├── Signup.tsx
-    │   │   ├── Dashboard.tsx
-    │   │   ├── Orders.tsx
-    │   │   ├── CreateOrder.tsx
-    │   │   ├── OrderDetail.tsx
-    │   │   └── Track.tsx        # Public tracking page
-    │   ├── components/
-    │   │   ├── Layout.tsx       # Sidebar + topbar wrapper
-    │   │   └── ProtectedRoute.tsx
+    │   │   └── axios.ts       # Axios instance — baseURL from env, JWT interceptor (DONE)
     │   ├── context/
-    │   │   └── AuthContext.tsx
-    │   ├── theme.ts
-    │   ├── App.tsx
-    │   └── main.tsx
-    └── package.json
+    │   │   └── AuthContext.tsx # login, signup, logout, vendor state (DONE)
+    │   ├── components/
+    │   │   ├── Layout.tsx     # Sidebar (dark #0D1B2A) + top bar wrapper (DONE)
+    │   │   ├── ProtectedRoute.tsx  # Redirect to /login if no vendor (DONE)
+    │   │   └── StatusChip.tsx # Color-coded status chip for all statuses (DONE)
+    │   ├── pages/
+    │   │   ├── Login.tsx      # Centered card, email+password, links to signup (DONE)
+    │   │   ├── Signup.tsx     # Centered card, company+email+phone+password (DONE)
+    │   │   ├── Dashboard.tsx  # Greeting, 4 stat cards, recent orders table (DONE)
+    │   │   ├── Orders.tsx     # Full orders table with search + create button (DONE)
+    │   │   ├── CreateOrder.tsx # 3-step stepper: parcel → pickup → delivery (DONE)
+    │   │   ├── OrderDetail.tsx # Pickup/delivery columns, tracking token copy, status stepper, demo controls (DONE)
+    │   │   ├── Track.tsx      # Public standalone tracking page — no sidebar (DONE)
+    │   │   └── Profile.tsx    # Vendor info + API key with copy button (DONE)
+    │   ├── theme.ts           # MUI theme — primary #1565C0, secondary #FF6F00, Inter font (DONE)
+    │   ├── App.tsx            # BrowserRouter with all routes + ProtectedRoute (DONE)
+    │   └── main.tsx           # ReactDOM root (DONE)
+    ├── .env                   # VITE_API_BASE_URL=http://localhost:3000/api
+    ├── index.html
+    ├── vite.config.ts         # React plugin, port 5173
+    ├── package.json
+    └── tsconfig.json
 ```
 
 ---
 
-## Database Schema (Prisma)
+## Database Schema (Prisma — current applied state)
 
 ```prisma
 generator client {
@@ -73,7 +106,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Vendor {
@@ -84,28 +116,24 @@ model Vendor {
   phone       String
   apiKey      String   @unique @default(cuid())
   createdAt   DateTime @default(now())
-
-  orders Order[]
+  orders      Order[]
 }
 
 model Order {
-  id          String      @id @default(cuid())
+  id          String   @id @default(cuid())
   vendorId    String
-  vendor      Vendor      @relation(fields: [vendorId], references: [id])
+  vendor      Vendor   @relation(fields: [vendorId], references: [id])
 
-  // Parcel
   description String
   weight      Float
-  priority    String      @default("STANDARD")  // STANDARD | EXPRESS | SAME_DAY
+  priority    String   @default("STANDARD")   // STANDARD | EXPRESS | SAME_DAY
 
-  // Pickup
   pickupAddress  String
   pickupCity     String
   pickupPincode  String
   pickupContact  String
   pickupPhone    String
 
-  // Delivery
   deliveryAddress String
   deliveryCity    String
   deliveryPincode String
@@ -113,7 +141,6 @@ model Order {
   customerPhone   String
   customerEmail   String?
 
-  // Tracking
   status         String   @default("PENDING")
   trackingToken  String   @unique @default(cuid())
 
@@ -122,151 +149,75 @@ model Order {
 }
 ```
 
-Run: `npx prisma migrate dev --name init`
+**Prisma 7 notes:**
+- The `datasource` block has NO `url` — Prisma 7 moved that to `prisma.config.ts`
+- `prisma.config.ts` loads `dotenv/config`, sets `datasource.url` from env, and provides the `PrismaPg` adapter for migrations
+- Runtime Prisma client in `src/lib/prisma.ts` uses the adapter pattern with `pg` Pool
 
 ---
 
-## Backend APIs
+## Backend APIs (all implemented)
 
-Keep it simple. No complex validation. Just make it work.
+Base URL: `http://localhost:3000`
 
 ### Auth — `/api/auth`
 
-**POST `/api/auth/signup`**
-```json
-// Body
-{ "email": "", "password": "", "companyName": "", "phone": "" }
+| Method | Endpoint          | Auth     | Description                    |
+|--------|-------------------|----------|--------------------------------|
+| POST   | `/api/auth/signup` | none    | Create vendor account → JWT    |
+| POST   | `/api/auth/login`  | none    | Login → JWT                    |
+| GET    | `/api/auth/me`     | JWT only | Get current vendor profile     |
 
-// Response
-{ "token": "jwt...", "vendor": { "id": "", "email": "", "companyName": "", "apiKey": "" } }
-```
-
-**POST `/api/auth/login`**
-```json
-// Body
-{ "email": "", "password": "" }
-
-// Response
-{ "token": "jwt...", "vendor": { "id": "", "email": "", "companyName": "", "apiKey": "" } }
-```
-
-**GET `/api/auth/me`** — requires JWT
-```json
-// Response
-{ "id": "", "email": "", "companyName": "", "phone": "", "apiKey": "" }
-```
-
----
+**Signup body:** `{ email, password, companyName, phone }`
+**Login body:** `{ email, password }`
+**Response:** `{ token, vendor: { id, email, companyName, apiKey } }`
 
 ### Orders — `/api/orders`
 
-All order routes accept **either** `Authorization: Bearer <JWT>` or `x-api-key: <apiKey>` header.
-Write a single middleware that checks JWT first, then falls back to API key lookup.
+All order routes use `flexAuth` — accepts `Authorization: Bearer <JWT>` OR `x-api-key: <key>`.
 
-**POST `/api/orders`** — Create order
-```json
-// Body
-{
-  "description": "Mobile Phone",
-  "weight": 0.5,
-  "priority": "EXPRESS",
-  "pickupAddress": "Warehouse B, Andheri",
-  "pickupCity": "Mumbai",
-  "pickupPincode": "400069",
-  "pickupContact": "Ravi Kumar",
-  "pickupPhone": "9123456780",
-  "deliveryAddress": "Flat 4B, Baner",
-  "deliveryCity": "Pune",
-  "deliveryPincode": "411045",
-  "customerName": "Harsh Desai",
-  "customerPhone": "9876543210",
-  "customerEmail": "harsh@example.com"
-}
-
-// Response
-{ "id": "", "trackingToken": "", "status": "PENDING", "createdAt": "" }
-```
-
-**GET `/api/orders`** — List vendor's orders
-```json
-// Response
-[{ "id": "", "description": "", "status": "", "customerName": "", "deliveryCity": "", "createdAt": "", "trackingToken": "" }]
-```
-
-**GET `/api/orders/:id`** — Single order detail (full fields)
-
-**PUT `/api/orders/:id/status`** — Update order status (for demo simulation)
-```json
-// Body
-{ "status": "IN_TRANSIT" }
-```
-
-**DELETE `/api/orders/:id`** — Cancel order (just delete or set status = CANCELLED)
-
----
+| Method | Endpoint                | Description                              |
+|--------|-------------------------|------------------------------------------|
+| POST   | `/api/orders`           | Create order → `{ id, trackingToken, status, createdAt }` |
+| GET    | `/api/orders`           | List vendor's orders (desc by createdAt) |
+| GET    | `/api/orders/:id`       | Full order detail                        |
+| PUT    | `/api/orders/:id/status`| Update status `{ status: "IN_TRANSIT" }` |
+| DELETE | `/api/orders/:id`       | Cancel order (sets status = CANCELLED)   |
 
 ### Tracking — `/api/tracking`
 
-No auth required.
-
-**GET `/api/tracking/:token`**
-```json
-// Response
-{
-  "trackingToken": "",
-  "status": "IN_TRANSIT",
-  "customerName": "Harsh Desai",
-  "deliveryCity": "Pune",
-  "description": "Mobile Phone",
-  "priority": "EXPRESS",
-  "createdAt": ""
-}
-```
-
----
+| Method | Endpoint                 | Auth | Description                       |
+|--------|--------------------------|------|-----------------------------------|
+| GET    | `/api/tracking/:token`   | none | Public tracking info              |
 
 ### Vendor — `/api/vendor`
 
-**GET `/api/vendor/stats`** — requires JWT
-```json
-// Response
-{ "total": 50, "pending": 5, "inTransit": 20, "delivered": 22, "cancelled": 3 }
-```
+| Method | Endpoint              | Auth     | Description                        |
+|--------|-----------------------|----------|------------------------------------|
+| GET    | `/api/vendor/stats`   | JWT only | `{ total, pending, inTransit, delivered, cancelled }` |
 
 ---
 
 ## Auth Middleware
 
-```typescript
-// src/middleware/auth.ts
-import jwt from 'jsonwebtoken'
-import { prisma } from '../lib/prisma'
+Two middlewares in `backend/src/middleware/auth.ts`:
 
-export const flexAuth = async (req: any, res: any, next: any) => {
-  const authHeader = req.headers['authorization']
-  const apiKey = req.headers['x-api-key']
+- **`flexAuth`**: Checks JWT first (`Authorization: Bearer <token>`), falls back to API key lookup (`x-api-key`). Sets `req.vendor = { id, email }`. Used on all order routes.
+- **`jwtOnly`**: Only accepts JWT Bearer token. Used on `/api/auth/me` and `/api/vendor/stats`.
 
-  if (authHeader?.startsWith('Bearer ')) {
-    try {
-      const token = authHeader.split(' ')[1]
-      const payload: any = jwt.verify(token, process.env.JWT_SECRET!)
-      req.vendor = payload
-      return next()
-    } catch {
-      return res.status(401).json({ error: 'Invalid token' })
-    }
-  }
+---
 
-  if (apiKey) {
-    const vendor = await prisma.vendor.findUnique({ where: { apiKey: apiKey as string } })
-    if (!vendor) return res.status(401).json({ error: 'Invalid API key' })
-    req.vendor = { id: vendor.id, email: vendor.email }
-    return next()
-  }
+## Order Status Flow
 
-  return res.status(401).json({ error: 'Unauthorized' })
-}
 ```
+PENDING → CONFIRMED → PICKED_UP → IN_TRANSIT → OUT_FOR_DELIVERY → DELIVERED
+                                                                   ↓
+                                                              CANCELLED (any time)
+```
+
+Status chip colors (in `StatusChip.tsx`):
+- PENDING: grey | CONFIRMED: blue | PICKED_UP: light blue
+- IN_TRANSIT: orange | OUT_FOR_DELIVERY: amber | DELIVERED: green | CANCELLED: red
 
 ---
 
@@ -274,7 +225,7 @@ export const flexAuth = async (req: any, res: any, next: any) => {
 
 **backend/.env**
 ```
-DATABASE_URL=postgresql://user:password@localhost:5432/swiftdrop
+DATABASE_URL=postgresql://postgres:nilay@localhost:5432/swiftdrop
 JWT_SECRET=hackathon_secret_key
 PORT=3000
 ```
@@ -286,149 +237,97 @@ VITE_API_BASE_URL=http://localhost:3000/api
 
 ---
 
-## Frontend — UI Guidelines
+## Frontend Routes (all implemented)
 
-**This is the most important part. Make it look polished.**
-
-### Theme
-
-```typescript
-// theme.ts
-import { createTheme } from '@mui/material/styles'
-
-export const theme = createTheme({
-  palette: {
-    primary: { main: '#1565C0' },
-    secondary: { main: '#FF6F00' },
-    background: { default: '#F0F4F8', paper: '#ffffff' },
-    success: { main: '#2E7D32' },
-    warning: { main: '#E65100' },
-  },
-  typography: {
-    fontFamily: 'Inter, sans-serif',
-    h5: { fontWeight: 700 },
-    h6: { fontWeight: 600 },
-  },
-  shape: { borderRadius: 12 },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: { textTransform: 'none', fontWeight: 600, borderRadius: 8 }
-      }
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: { boxShadow: '0 2px 12px rgba(0,0,0,0.08)', borderRadius: 12 }
-      }
-    }
-  }
-})
-```
+| Path              | Component      | Auth      | Description                     |
+|-------------------|----------------|-----------|---------------------------------|
+| `/login`          | Login.tsx      | public    | Centered card login form        |
+| `/signup`         | Signup.tsx     | public    | Centered card signup form       |
+| `/track/:token`   | Track.tsx     | public    | Standalone tracking (no sidebar)|
+| `/dashboard`      | Dashboard.tsx  | protected | Stats cards + recent orders     |
+| `/orders`         | Orders.tsx     | protected | All orders + search + create btn|
+| `/orders/new`     | CreateOrder.tsx| protected | 3-step stepper form             |
+| `/orders/:id`     | OrderDetail.tsx| protected | Full detail + status controls   |
+| `/profile`        | Profile.tsx    | protected | Vendor info + API key           |
+| `/`               | redirect       | —         | Redirects to `/dashboard`       |
+| `*`               | redirect       | —         | Redirects to `/dashboard`       |
 
 ---
 
-### Pages & UI Details
+## Frontend — UI Details
 
-#### Login / Signup Pages
-- Centered card layout (max-width 420px), logo/brand name at top
-- Clean form with email + password fields
-- Primary button full-width
-- Link to switch between login/signup
-- Show error messages inline under the button
+### Theme (`theme.ts`)
+- Primary: `#1565C0` (blue) | Secondary: `#FF6F00` (orange)
+- Background: `#F0F4F8` | Paper: `#ffffff`
+- Font: Inter, sans-serif
+- Border radius: 12px globally, 8px on buttons
+- Buttons: no text-transform, fontWeight 600
+- Cards: soft shadow `0 2px 12px rgba(0,0,0,0.08)`
 
-#### Dashboard Page (`/dashboard`)
-- Top greeting: "Good morning, Amazon India 👋"
-- 4 stats cards in a row: **Total Orders**, **Pending**, **In Transit**, **Delivered**
-  - Each card has an icon, big number, and label
-  - Color-coded: blue for total, orange for pending, purple for transit, green for delivered
-- Below: a table of **Recent Orders** (last 10) with columns: Order ID, Customer, City, Status chip, Date, Actions
-- Status chips should be color-coded:
-  - PENDING → grey
-  - CONFIRMED → blue
-  - IN_TRANSIT → orange
-  - DELIVERED → green
-  - CANCELLED → red
+### Layout (`Layout.tsx`)
+- Left sidebar: 240px, dark navy `#0D1B2A`, brand logo with bolt icon
+- Nav items: Dashboard, Orders, Create Order, Profile — with active state highlight
+- Top bar: white, page title on left, company name + avatar on right
+- Logout button at sidebar bottom
 
-#### Orders Page (`/orders`)
-- Full table with all orders, same columns as dashboard
-- Search bar at top to filter by customer name or city
-- "Create Order" button (primary, top right) → goes to `/orders/new`
-- Clicking a row → goes to `/orders/:id`
+### Axios (`api/axios.ts`)
+- Base URL from `VITE_API_BASE_URL` env var
+- Request interceptor auto-attaches JWT from `localStorage.getItem('token')`
 
-#### Create Order Page (`/orders/new`)
-- Stepper with 3 steps:
-  1. **Parcel Info** — description, weight, priority (dropdown: Standard / Express / Same Day)
-  2. **Pickup Details** — address, city, pincode, contact name, phone
-  3. **Delivery Details** — address, city, pincode, customer name, phone, email
-- "Next" and "Back" buttons
-- On final step show a "Submit Order" button
-- After success: show a success alert with the tracking token, then redirect to orders list
-
-#### Order Detail Page (`/orders/:id`)
-- Show full order info in two columns (pickup on left, delivery on right)
-- Status badge at top
-- Tracking token displayed with a copy-to-clipboard button
-- Timeline/stepper at the bottom showing status history visually:
-  `PENDING → CONFIRMED → PICKED_UP → IN_TRANSIT → OUT_FOR_DELIVERY → DELIVERED`
-  Highlight current step
-- For demo: dropdown to manually update status
-
-#### Public Tracking Page (`/track/:token`)
-- No sidebar/navbar — standalone page
-- Brand logo at top
-- Big status indicator with icon
-- Show: customer name, delivery city, parcel description, priority, date
-- Simple visual stepper for stages
-- Anyone can access this without logging in
-
-#### Layout (for protected pages)
-- Left sidebar (240px) with:
-  - Brand logo at top ("⚡ SwiftDrop")
-  - Nav links: Dashboard, Orders, Create Order, Profile
-  - Logout button at bottom
-- Top bar with page title and user's company name
-- Main content area with padding
+### AuthContext (`context/AuthContext.tsx`)
+- Provides: `vendor`, `loading`, `login()`, `signup()`, `logout()`
+- On mount: checks localStorage for token, calls `/auth/me` to restore session
+- On login/signup: stores token in localStorage, sets vendor state
+- On logout: clears localStorage + vendor state
 
 ---
 
-## Frontend Routes
+## What's Done (complete implementation)
 
-```
-/login                 → Login page (public)
-/signup                → Signup page (public)
-/track/:token          → Public tracking page (public)
-/dashboard             → Dashboard (protected)
-/orders                → Orders list (protected)
-/orders/new            → Create order (protected)
-/orders/:id            → Order detail (protected)
-```
+### Backend — 100% complete
+- Express server with CORS and JSON parsing
+- All 4 route files: auth, orders, tracking, vendor
+- Both auth middlewares: flexAuth + jwtOnly
+- Prisma client singleton with pg adapter
+- Database migrated (Vendor + Order tables)
+- Prisma 7 config with dotenv loading
 
----
-
-## Axios Setup
-
-```typescript
-// api/axios.ts
-import axios from 'axios'
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-})
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
-
-export default api
-```
+### Frontend — 100% complete (all pages implemented)
+- MUI theme configured
+- Axios with auth interceptor
+- AuthContext with full auth flow
+- Layout with sidebar + top bar
+- ProtectedRoute component
+- StatusChip with color coding
+- All 8 pages: Login, Signup, Dashboard, Orders, CreateOrder, OrderDetail, Track, Profile
 
 ---
 
-## Build Order
+## What Could Be Added Next
 
-1. Set up backend: Prisma schema → migrate → auth routes → order routes → tracking
-2. Set up frontend: Vite + MUI theme → auth pages → layout → dashboard → orders
+These are potential enhancements — none are started:
 
-Keep things moving. Don't over-think backend. Ship the UI.
+- **Email notifications** — send tracking link to customer on order creation
+- **Webhook support** — notify vendor's system on status changes
+- **Bulk order import** — CSV/Excel upload for batch order creation
+- **Analytics dashboard** — charts for delivery times, volumes, city breakdown
+- **Driver/delivery agent module** — assign orders to drivers, real-time location
+- **Rate limiting** — protect API from abuse
+- **Pagination** — orders list currently loads all, add cursor/offset pagination
+- **Search/filter improvements** — filter by status, date range, priority
+- **PDF labels** — generate shipping labels for orders
+- **Multi-tenant admin panel** — super-admin view across all vendors
+- **Audit log** — track status change history with timestamps
+- **Testing** — unit tests for routes, integration tests for auth flow
+
+---
+
+## Development Notes
+
+- Prisma 7 does NOT use `url` in the `datasource` block of `schema.prisma` — it goes in `prisma.config.ts`
+- Always import `dotenv/config` at the top of `prisma.config.ts` for env vars to load during CLI commands
+- The `prisma.config.ts` needs both `datasource.url` (for migrations) and `migrate.adapter` (for the pg driver)
+- Frontend dev server runs on port 5173, backend on port 3000 — no proxy configured, relies on CORS
+- JWT tokens expire in 7 days
+- Order deletion is a soft delete — sets status to CANCELLED rather than removing the row
+- The `inTransit` stat count includes CONFIRMED, PICKED_UP, IN_TRANSIT, and OUT_FOR_DELIVERY
