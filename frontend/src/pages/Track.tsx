@@ -23,6 +23,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { useParams } from 'react-router-dom'
 import api from '../api/axios'
 import StatusChip from '../components/StatusChip'
+import LiveAgentMap from '../components/LiveAgentMap'
 
 const URBAN_FLOW = ['PENDING', 'CONFIRMED', 'AT_MAIN_HUB', 'OUT_FOR_DELIVERY', 'DELIVERED']
 const SEMI_URBAN_FLOW = [
@@ -186,6 +187,10 @@ export default function Track() {
                 )}
               </CardContent>
             </Card>
+
+            {data.status === 'OUT_FOR_DELIVERY' && (
+              <LiveAgentMap trackingToken={data.trackingToken} deliveryCity={data.deliveryCity} />
+            )}
 
             <Card sx={{ mb: 3 }}>
               <CardContent sx={{ p: 4 }}>

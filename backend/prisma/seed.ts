@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { randomBytes } from 'crypto'
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
@@ -452,6 +453,28 @@ async function main() {
       if (agent) agentId = agent.id
     }
 
+    // Phase 3 — give every dispatched order a unique agent link.
+    // For OUT_FOR_DELIVERY orders, prepopulate a believable GPS pin near the
+    // delivery destination so the live map looks alive in the demo even
+    // before a real agent connects.
+    const agentToken = agentId ? randomBytes(16).toString('hex') : null
+
+    let agentLat: number | null = null
+    let agentLng: number | null = null
+    let agentLastSeen: Date | null = null
+    if (status === 'OUT_FOR_DELIVERY') {
+      const dCoords = getCoords(delivery.city)
+      if (dCoords) {
+        // Offset by ~1–2 km in a deterministic direction so a polyline shows.
+        const jitterLat = (rand() - 0.5) * 0.025
+        const jitterLng = (rand() - 0.5) * 0.025
+        agentLat = dCoords[0] + jitterLat
+        agentLng = dCoords[1] + jitterLng
+        agentLastSeen = new Date(Date.now() - Math.floor(rand() * 60_000))
+      }
+    }
+    const deliveredAt = status === 'DELIVERED' ? new Date(Date.now() - Math.floor(rand() * 86_400_000)) : null
+
     await prisma.order.create({
       data: {
         vendorId: createdVendors[vendorIdx].id,
@@ -473,6 +496,11 @@ async function main() {
         isUrban,
         assignedHubId: mainHub.id,
         agentId,
+        agentToken,
+        agentLat,
+        agentLng,
+        agentLastSeen,
+        deliveredAt,
       },
     })
   }

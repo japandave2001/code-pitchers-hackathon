@@ -12,6 +12,7 @@ import OrderDetail from './pages/OrderDetail'
 import Profile from './pages/Profile'
 import Track from './pages/Track'
 import MapView from './pages/MapView'
+import AgentView from './pages/AgentView'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/track/:token" element={<Track />} />
+            <Route path="/agent/:agentToken" element={<AgentView />} />
             <Route
               path="/dashboard"
               element={

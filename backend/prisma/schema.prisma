@@ -76,6 +76,13 @@ model Order {
   assignedHub   Hub?           @relation("assignedHub", fields: [assignedHubId], references: [id])
   isUrban       Boolean        @default(true)
 
+  // Phase 3 — live agent tracking
+  agentToken    String?        @unique
+  agentLat      Float?
+  agentLng      Float?
+  agentLastSeen DateTime?
+  deliveredAt   DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

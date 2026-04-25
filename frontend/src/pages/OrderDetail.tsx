@@ -30,6 +30,7 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'
 import { useParams, useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import StatusChip from '../components/StatusChip'
+import LiveAgentMap from '../components/LiveAgentMap'
 import api from '../api/axios'
 
 const URBAN_FLOW = ['PENDING', 'CONFIRMED', 'AT_MAIN_HUB', 'OUT_FOR_DELIVERY', 'DELIVERED']
@@ -73,6 +74,7 @@ type Order = {
   customerEmail: string | null
   agentId: string | null
   agent: Agent | null
+  agentToken: string | null
   assignedHubId: string | null
   assignedHub: Hub | null
   localHub: Hub | null
@@ -111,6 +113,13 @@ export default function OrderDetail() {
     const link = `${window.location.origin}/track/${order.trackingToken}`
     navigator.clipboard.writeText(link)
     setSnack({ msg: 'Tracking link copied!', sev: 'success' })
+  }
+
+  const copyAgentLink = () => {
+    if (!order?.agentToken) return
+    const link = `${window.location.origin}/agent/${order.agentToken}`
+    navigator.clipboard.writeText(link)
+    setSnack({ msg: 'Agent link copied — share via WhatsApp/SMS', sev: 'success' })
   }
 
   const updateStatus = async (status: string) => {
@@ -358,8 +367,62 @@ export default function OrderDetail() {
               </Typography>
             </Box>
           )}
+
+          {order.agentToken && (
+            <Box sx={{ mt: 2.5 }}>
+              <Typography variant="overline" color="text.secondary">Agent Link</Typography>
+              <Box
+                sx={{
+                  mt: 0.5,
+                  p: 1.5,
+                  bgcolor: '#F8FAFC',
+                  border: '1px solid #E5E9F0',
+                  borderRadius: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    flex: 1,
+                    minWidth: 240,
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                    color: 'text.secondary',
+                    wordBreak: 'break-all',
+                  }}
+                >
+                  {`${window.location.origin}/agent/${order.agentToken}`}
+                </Typography>
+                <Tooltip title="Copy">
+                  <IconButton size="small" onClick={copyAgentLink}>
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  href={`/agent/${order.agentToken}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open
+                </Button>
+              </Box>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                Share this with the delivery agent. They open it on their phone, tap <strong>Start Broadcasting</strong> when out for delivery, and the customer sees their pin live on the map.
+              </Typography>
+            </Box>
+          )}
         </CardContent>
       </Card>
+
+      {order.status === 'OUT_FOR_DELIVERY' && (
+        <LiveAgentMap trackingToken={order.trackingToken} deliveryCity={order.deliveryCity} />
+      )}
 
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ p: 4 }}>

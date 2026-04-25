@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { randomBytes } from 'crypto'
 import { prisma } from '../lib/prisma'
 import { flexAuth } from '../middleware/auth'
 import { resolveRoute, findNearestLocalHub } from '../utils/routing'
@@ -169,7 +170,13 @@ router.post('/:id/dispatch', async (req: any, res) => {
 
   const updated = await prisma.order.update({
     where: { id: order.id },
-    data: { agentId: agent.id, status: 'CONFIRMED' },
+    data: {
+      agentId: agent.id,
+      status: 'CONFIRMED',
+      // Phase 3 — unique URL token the agent uses to claim the delivery from
+      // their phone (no separate agent login required).
+      agentToken: order.agentToken || randomBytes(16).toString('hex'),
+    },
     include: { agent: { include: { hub: true } }, assignedHub: true },
   })
 
