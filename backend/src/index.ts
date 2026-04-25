@@ -7,6 +7,7 @@ import trackingRoutes from './routes/tracking'
 import vendorRoutes from './routes/vendor'
 import hubsRoutes from './routes/hubs'
 import agentRoutes from './routes/agent'
+import pricingRoutes from './routes/pricing'
 
 const app = express()
 app.use(cors({
@@ -26,6 +27,7 @@ app.use('/api/tracking', trackingRoutes)
 app.use('/api/vendor', vendorRoutes)
 app.use('/api/hubs', hubsRoutes)
 app.use('/api/agent', agentRoutes)
+app.use('/api/pricing', pricingRoutes)
 
 const PORT = parseInt(process.env.PORT || '3000', 10)
 app.listen(PORT, () => {

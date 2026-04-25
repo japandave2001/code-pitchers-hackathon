@@ -31,6 +31,8 @@ type Order = {
   customerName: string
   deliveryCity: string
   isUrban: boolean
+  zone: string | null
+  totalPrice: number | null
   createdAt: string
   trackingToken: string
 }
@@ -91,6 +93,7 @@ export default function Orders() {
                   <TableCell sx={{ fontWeight: 600 }}>City</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Route</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">Charge</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
                 </TableRow>
@@ -98,7 +101,7 @@ export default function Orders() {
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                    <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                       {orders.length === 0 ? 'No orders yet.' : 'No orders match your search.'}
                     </TableCell>
                   </TableRow>
@@ -129,6 +132,9 @@ export default function Orders() {
                       </TableCell>
                       <TableCell>
                         <StatusChip status={o.status} />
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                        {o.totalPrice != null ? `₹${o.totalPrice}` : '—'}
                       </TableCell>
                       <TableCell sx={{ color: 'text.secondary', fontSize: 13 }}>
                         {new Date(o.createdAt).toLocaleDateString()}

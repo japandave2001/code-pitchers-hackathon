@@ -83,6 +83,17 @@ model Order {
   agentLastSeen DateTime?
   deliveredAt   DateTime?
 
+  // Phase 4 — dynamic pricing snapshot at the time the order was created
+  zone               String?  // LOCAL | ZONAL | METRO | NATIONAL
+  chargeableWeight   Float?
+  dimensions         String?  // "LxBxH" cm — null when not provided
+  baseRate           Float?
+  weightCharge       Float?
+  surcharge          Float?
+  priorityMultiplier Float?
+  fuelSurcharge      Float?
+  totalPrice         Float?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

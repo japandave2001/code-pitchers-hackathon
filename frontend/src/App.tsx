@@ -13,6 +13,7 @@ import Profile from './pages/Profile'
 import Track from './pages/Track'
 import MapView from './pages/MapView'
 import AgentView from './pages/AgentView'
+import Pricing from './pages/Pricing'
 
 export default function App() {
   return (
@@ -63,6 +64,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <MapView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pricing"
+              element={
+                <ProtectedRoute>
+                  <Pricing />
                 </ProtectedRoute>
               }
             />

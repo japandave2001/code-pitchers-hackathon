@@ -31,6 +31,7 @@ type Order = {
   status: string
   customerName: string
   deliveryCity: string
+  totalPrice: number | null
   createdAt: string
   trackingToken: string
 }
@@ -117,6 +118,7 @@ export default function Dashboard() {
                   <TableCell sx={{ fontWeight: 600 }}>Customer</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>City</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">Charge</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
                 </TableRow>
@@ -124,7 +126,7 @@ export default function Dashboard() {
               <TableBody>
                 {orders.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                       No orders yet. Create your first order to get started.
                     </TableCell>
                   </TableRow>
@@ -143,6 +145,9 @@ export default function Dashboard() {
                       <TableCell>{o.deliveryCity}</TableCell>
                       <TableCell>
                         <StatusChip status={o.status} />
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                        {o.totalPrice != null ? `₹${o.totalPrice}` : '—'}
                       </TableCell>
                       <TableCell sx={{ color: 'text.secondary', fontSize: 13 }}>
                         {new Date(o.createdAt).toLocaleDateString()}

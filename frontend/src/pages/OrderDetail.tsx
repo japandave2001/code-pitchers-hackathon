@@ -78,6 +78,16 @@ type Order = {
   assignedHubId: string | null
   assignedHub: Hub | null
   localHub: Hub | null
+  // Phase 4 — pricing snapshot
+  zone: string | null
+  chargeableWeight: number | null
+  dimensions: string | null
+  baseRate: number | null
+  weightCharge: number | null
+  surcharge: number | null
+  priorityMultiplier: number | null
+  fuelSurcharge: number | null
+  totalPrice: number | null
   createdAt: string
 }
 
@@ -291,6 +301,88 @@ export default function OrderDetail() {
         </Box>
       </Alert>
 
+      {/* Pricing Snapshot — only when order has saved pricing (post-Phase 4 orders) */}
+      {order.totalPrice != null && order.zone && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent sx={{ p: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+              <Typography variant="h6">Shipping Charges</Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                <Chip
+                  size="small"
+                  label={order.zone}
+                  sx={{ fontWeight: 700, fontSize: '0.7rem', bgcolor: '#E3F2FD', color: '#1565C0' }}
+                />
+                {order.chargeableWeight != null && (
+                  <Chip
+                    size="small"
+                    variant="outlined"
+                    label={`Chargeable: ${order.chargeableWeight}kg`}
+                    sx={{ fontSize: '0.7rem' }}
+                  />
+                )}
+              </Box>
+            </Box>
+
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={7}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                  <PriceRow label={`Base rate (${order.zone})`} value={`₹${order.baseRate ?? 0}`} />
+                  {order.weightCharge != null && order.weightCharge > 0 && (
+                    <PriceRow label="Weight charge" value={`₹${order.weightCharge}`} />
+                  )}
+                  {order.surcharge != null && order.surcharge > 0 && (
+                    <PriceRow label="Semi-urban surcharge" value={`₹${order.surcharge}`} />
+                  )}
+                  {order.priorityMultiplier != null && order.priorityMultiplier > 1 && (
+                    <PriceRow
+                      label={`Priority multiplier (× ${order.priorityMultiplier})`}
+                      value={`${order.priority.replace(/_/g, ' ')}`}
+                    />
+                  )}
+                  <PriceRow label="Fuel surcharge (5%)" value={`₹${order.fuelSurcharge ?? 0}`} />
+                  <Divider sx={{ my: 1 }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Total billed</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                      ₹{order.totalPrice}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={5}>
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: '#F8FAFC',
+                    border: '1px solid #E5E9F0',
+                    borderRadius: 2,
+                    height: '100%',
+                  }}
+                >
+                  <Typography variant="overline" color="text.secondary">How we got here</Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5 }}>
+                    <strong>{order.pickupCity}</strong> → <strong>{order.deliveryCity}</strong>
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                    Classified as <strong>{order.zone}</strong> · {order.isUrban ? 'urban (direct)' : 'semi-urban (via local hub)'}
+                  </Typography>
+                  {order.dimensions && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                      Dimensions: {order.dimensions} cm
+                    </Typography>
+                  )}
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                    Actual weight {order.weight}kg · Chargeable {order.chargeableWeight}kg
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Agent Card or Dispatch Button */}
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ p: 4 }}>
@@ -489,6 +581,15 @@ function RoutePath({ hops }: { hops: { icon: React.ReactNode; label: string }[] 
           {i < hops.length - 1 && <ArrowForwardIcon fontSize="small" sx={{ opacity: 0.6 }} />}
         </Box>
       ))}
+    </Box>
+  )
+}
+
+function PriceRow({ label, value }: { label: string; value: string }) {
+  return (
+    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+      <Typography variant="body2" color="text.secondary">{label}</Typography>
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>{value}</Typography>
     </Box>
   )
 }

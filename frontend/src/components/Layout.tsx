@@ -18,6 +18,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard'
 import InventoryIcon from '@mui/icons-material/Inventory2'
 import AddBoxIcon from '@mui/icons-material/AddBox'
 import MapIcon from '@mui/icons-material/Map'
+import CalculateIcon from '@mui/icons-material/Calculate'
 import PersonIcon from '@mui/icons-material/Person'
 import LogoutIcon from '@mui/icons-material/Logout'
 import BoltIcon from '@mui/icons-material/Bolt'
@@ -31,6 +32,7 @@ const navItems = [
   { label: 'Orders', icon: <InventoryIcon />, path: '/orders' },
   { label: 'Create Order', icon: <AddBoxIcon />, path: '/orders/new' },
   { label: 'Route Map', icon: <MapIcon />, path: '/map' },
+  { label: 'Pricing', icon: <CalculateIcon />, path: '/pricing' },
   { label: 'Profile', icon: <PersonIcon />, path: '/profile' },
 ]
 

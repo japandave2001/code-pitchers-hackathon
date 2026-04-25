@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma'
 import { flexAuth } from '../middleware/auth'
 import { resolveRoute, findNearestLocalHub } from '../utils/routing'
 import { sendStatusEmail } from '../lib/email'
+import { calculatePrice } from '../utils/pricing'
 
 const router = Router()
 
@@ -14,6 +15,7 @@ router.post('/', async (req: any, res) => {
     description,
     weight,
     priority,
+    dimensions,
     pickupAddress,
     pickupCity,
     pickupPincode,
@@ -29,12 +31,27 @@ router.post('/', async (req: any, res) => {
 
   const { isUrban, mainHub } = await resolveRoute(pickupCity || '', deliveryCity || '')
 
+  const parsedWeight = parseFloat(weight)
+  const finalPriority = priority || 'STANDARD'
+  const cleanDimensions = typeof dimensions === 'string' && dimensions.trim() ? dimensions.trim() : null
+
+  // Phase 4 — snapshot the pricing on the order itself so the vendor's
+  // invoice never changes if our rate card later does.
+  const pricing = calculatePrice({
+    pickupCity: pickupCity || '',
+    deliveryCity: deliveryCity || '',
+    weight: parsedWeight,
+    dimensions: cleanDimensions || undefined,
+    priority: finalPriority,
+    isUrban,
+  })
+
   const order = await prisma.order.create({
     data: {
       vendorId: req.vendor.id,
       description,
-      weight: parseFloat(weight),
-      priority: priority || 'STANDARD',
+      weight: parsedWeight,
+      priority: finalPriority,
       pickupAddress,
       pickupCity,
       pickupPincode,
@@ -48,6 +65,15 @@ router.post('/', async (req: any, res) => {
       customerEmail: customerEmail || null,
       isUrban,
       assignedHubId: mainHub?.id || null,
+      dimensions: cleanDimensions,
+      zone: pricing.zone,
+      chargeableWeight: pricing.chargeableWeight,
+      baseRate: pricing.baseRate,
+      weightCharge: pricing.weightCharge,
+      surcharge: pricing.surcharge,
+      priorityMultiplier: pricing.priorityMultiplier,
+      fuelSurcharge: pricing.fuelSurcharge,
+      totalPrice: pricing.total,
     },
   })
 
@@ -60,6 +86,9 @@ router.post('/', async (req: any, res) => {
     trackingToken: order.trackingToken,
     status: order.status,
     isUrban: order.isUrban,
+    zone: order.zone,
+    totalPrice: order.totalPrice,
+    pricing,
     createdAt: order.createdAt,
   })
 })
@@ -75,6 +104,8 @@ router.get('/', async (req: any, res) => {
       customerName: true,
       deliveryCity: true,
       isUrban: true,
+      zone: true,
+      totalPrice: true,
       createdAt: true,
       trackingToken: true,
     },

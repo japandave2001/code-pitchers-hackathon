@@ -4,6 +4,7 @@ import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { calculatePrice } from '../src/utils/pricing'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 const adapter = new PrismaPg(pool)
@@ -706,6 +707,15 @@ async function main() {
     }
     const deliveredAt = status === 'DELIVERED' ? new Date(Date.now() - Math.floor(rand() * 86_400_000)) : null
 
+    // Phase 4 — snapshot pricing on every seeded order
+    const pricing = calculatePrice({
+      pickupCity: pickup.city,
+      deliveryCity: delivery.city,
+      weight: product.weight,
+      priority,
+      isUrban,
+    })
+
     await prisma.order.create({
       data: {
         vendorId: createdVendors[vendorIdx].id,
@@ -732,6 +742,14 @@ async function main() {
         agentLng,
         agentLastSeen,
         deliveredAt,
+        zone: pricing.zone,
+        chargeableWeight: pricing.chargeableWeight,
+        baseRate: pricing.baseRate,
+        weightCharge: pricing.weightCharge,
+        surcharge: pricing.surcharge,
+        priorityMultiplier: pricing.priorityMultiplier,
+        fuelSurcharge: pricing.fuelSurcharge,
+        totalPrice: pricing.total,
       },
     })
   }
