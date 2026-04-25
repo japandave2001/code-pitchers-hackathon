@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vendor {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  companyName String
+  phone       String
+  apiKey      String   @unique @default(cuid())
+  createdAt   DateTime @default(now())
+
+  orders Order[]
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  vendorId    String
+  vendor      Vendor      @relation(fields: [vendorId], references: [id])
+
+  description String
+  weight      Float
+  priority    String      @default("STANDARD")
+
+  pickupAddress  String
+  pickupCity     String
+  pickupPincode  String
+  pickupContact  String
+  pickupPhone    String
+
+  deliveryAddress String
+  deliveryCity    String
+  deliveryPincode String
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+
+  status         String   @default("PENDING")
+  trackingToken  String   @unique @default(cuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

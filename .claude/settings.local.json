@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"BACKEND_EXIT=$?\")",
+      "Bash(echo \"FRONTEND_EXIT=$?\")"
+    ]
+  }
+}
