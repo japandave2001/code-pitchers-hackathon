@@ -13,6 +13,7 @@ import Profile from './pages/Profile'
 import Track from './pages/Track'
 import MapView from './pages/MapView'
 import AgentView from './pages/AgentView'
+import Landing from './pages/Landing'
 
 export default function App() {
   return (
@@ -21,7 +22,7 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/track/:token" element={<Track />} />
