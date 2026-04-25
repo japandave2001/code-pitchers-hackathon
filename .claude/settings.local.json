@@ -5,7 +5,13 @@
       "Bash(npx prisma *)",
       "Bash(npx tsc *)",
       "Bash(echo \"BACKEND_EXIT=$?\")",
-      "Bash(echo \"FRONTEND_EXIT=$?\")"
+      "Bash(echo \"FRONTEND_EXIT=$?\")",
+      "Bash(pnpm --version)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm turbo *)",
+      "Bash(pnpm *)",
+      "Bash(prisma --version)",
+      "Bash(xargs ls *)"
     ]
   }
 }

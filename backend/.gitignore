@@ -1,4 +1,2 @@
-node_modules
-dist
-.env
-*.log
+# Prisma generated client (if output path is customized)
+src/generated/

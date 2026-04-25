@@ -1,0 +1,22 @@
+{
+  "name": "swiftdrop",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.27.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "start": "turbo start"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "esbuild",
+      "prisma"
+    ]
+  }
+}

@@ -1,4 +1,2 @@
-node_modules
-dist
-.env
-*.log
+# Vite local config override
+vite.config.local.ts

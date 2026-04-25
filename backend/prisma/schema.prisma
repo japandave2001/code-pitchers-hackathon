@@ -4,12 +4,12 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Vendor {
   id          String   @id @default(cuid())
   email       String   @unique
+  
   password    String
   companyName String
   phone       String
