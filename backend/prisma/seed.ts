@@ -205,43 +205,171 @@ const deliveries = [
 ]
 
 // ── HUB DATA ──────────────────────────────────────────────────────────
+// Every Indian state/UT gets 1 MAIN hub in the capital/largest city.
+// Bigger states get 2-3 LOCAL hubs in tier-2/tier-3 cities.
+// Smaller states/UTs get only the MAIN hub (no locals).
+
 const mainHubsData = [
-  { name: 'Mumbai Main Hub',    city: 'Mumbai',    lat: 19.0760, lng: 72.8777 },
-  { name: 'Delhi Main Hub',     city: 'Delhi',     lat: 28.6139, lng: 77.2090 },
-  { name: 'Bangalore Main Hub', city: 'Bangalore', lat: 12.9716, lng: 77.5946 },
-  { name: 'Chennai Main Hub',   city: 'Chennai',   lat: 13.0827, lng: 80.2707 },
+  // ── West ──
+  { name: 'Mumbai Main Hub',         city: 'Mumbai',        state: 'Maharashtra',       lat: 19.0760, lng: 72.8777 },
+  { name: 'Ahmedabad Main Hub',      city: 'Ahmedabad',     state: 'Gujarat',           lat: 23.0225, lng: 72.5714 },
+  { name: 'Panaji Main Hub',         city: 'Panaji',        state: 'Goa',               lat: 15.4909, lng: 73.8278 },
+
+  // ── North ──
+  { name: 'Delhi Main Hub',          city: 'Delhi',         state: 'Delhi',             lat: 28.6139, lng: 77.2090 },
+  { name: 'Lucknow Main Hub',        city: 'Lucknow',       state: 'Uttar Pradesh',     lat: 26.8467, lng: 80.9462 },
+  { name: 'Jaipur Main Hub',         city: 'Jaipur',        state: 'Rajasthan',         lat: 26.9124, lng: 75.7873 },
+  { name: 'Chandigarh Main Hub',     city: 'Chandigarh',    state: 'Punjab/Haryana',    lat: 30.7333, lng: 76.7794 },
+  { name: 'Dehradun Main Hub',       city: 'Dehradun',      state: 'Uttarakhand',       lat: 30.3165, lng: 78.0322 },
+  { name: 'Shimla Main Hub',         city: 'Shimla',        state: 'Himachal Pradesh',  lat: 31.1048, lng: 77.1734 },
+  { name: 'Jammu Main Hub',          city: 'Jammu',         state: 'J&K',               lat: 32.7266, lng: 74.8570 },
+
+  // ── South ──
+  { name: 'Bangalore Main Hub',      city: 'Bangalore',     state: 'Karnataka',         lat: 12.9716, lng: 77.5946 },
+  { name: 'Chennai Main Hub',        city: 'Chennai',       state: 'Tamil Nadu',        lat: 13.0827, lng: 80.2707 },
+  { name: 'Hyderabad Main Hub',      city: 'Hyderabad',     state: 'Telangana',         lat: 17.3850, lng: 78.4867 },
+  { name: 'Kochi Main Hub',          city: 'Kochi',         state: 'Kerala',            lat:  9.9312, lng: 76.2673 },
+  { name: 'Amaravati Main Hub',      city: 'Vijayawada',    state: 'Andhra Pradesh',    lat: 16.5062, lng: 80.6480 },
+
+  // ── East ──
+  { name: 'Kolkata Main Hub',        city: 'Kolkata',       state: 'West Bengal',       lat: 22.5726, lng: 88.3639 },
+  { name: 'Patna Main Hub',          city: 'Patna',         state: 'Bihar',             lat: 25.5941, lng: 85.1376 },
+  { name: 'Bhubaneswar Main Hub',    city: 'Bhubaneswar',   state: 'Odisha',            lat: 20.2961, lng: 85.8245 },
+  { name: 'Ranchi Main Hub',         city: 'Ranchi',        state: 'Jharkhand',         lat: 23.3441, lng: 85.3096 },
+
+  // ── Central ──
+  { name: 'Bhopal Main Hub',         city: 'Bhopal',        state: 'Madhya Pradesh',    lat: 23.2599, lng: 77.4126 },
+  { name: 'Raipur Main Hub',         city: 'Raipur',        state: 'Chhattisgarh',      lat: 21.2514, lng: 81.6296 },
+
+  // ── Northeast ──
+  { name: 'Guwahati Main Hub',       city: 'Guwahati',      state: 'Assam',             lat: 26.1445, lng: 91.7362 },
+  { name: 'Imphal Main Hub',         city: 'Imphal',        state: 'Manipur',           lat: 24.8170, lng: 93.9368 },
+  { name: 'Shillong Main Hub',       city: 'Shillong',      state: 'Meghalaya',         lat: 25.5788, lng: 91.8933 },
+  { name: 'Gangtok Main Hub',        city: 'Gangtok',       state: 'Sikkim',            lat: 27.3389, lng: 88.6065 },
+  { name: 'Agartala Main Hub',       city: 'Agartala',      state: 'Tripura',           lat: 23.8315, lng: 91.2868 },
+  { name: 'Aizawl Main Hub',         city: 'Aizawl',        state: 'Mizoram',           lat: 23.7271, lng: 92.7176 },
+  { name: 'Kohima Main Hub',         city: 'Kohima',        state: 'Nagaland',          lat: 25.6751, lng: 94.1086 },
+  { name: 'Itanagar Main Hub',       city: 'Itanagar',      state: 'Arunachal Pradesh', lat: 27.0844, lng: 93.6053 },
 ]
 
 const localHubsData = [
-  { name: 'Nashik Local Hub',      city: 'Nashik',      parentCity: 'Mumbai',    lat: 19.9975, lng: 73.7898 },
-  { name: 'Aurangabad Local Hub',  city: 'Aurangabad',  parentCity: 'Mumbai',    lat: 19.8762, lng: 75.3433 },
-  { name: 'Mysore Local Hub',      city: 'Mysore',      parentCity: 'Bangalore', lat: 12.2958, lng: 76.6394 },
-  { name: 'Hubli Local Hub',       city: 'Hubli',       parentCity: 'Bangalore', lat: 15.3647, lng: 75.1240 },
-  { name: 'Coimbatore Local Hub',  city: 'Coimbatore',  parentCity: 'Chennai',   lat: 11.0168, lng: 76.9558 },
-  { name: 'Agra Local Hub',        city: 'Agra',        parentCity: 'Delhi',     lat: 27.1767, lng: 78.0081 },
+  // ── Maharashtra (under Mumbai) — big state, 3 locals ──
+  { name: 'Pune Local Hub',          city: 'Pune',          parentCity: 'Mumbai',       lat: 18.5204, lng: 73.8567 },
+  { name: 'Nashik Local Hub',        city: 'Nashik',        parentCity: 'Mumbai',       lat: 19.9975, lng: 73.7898 },
+  { name: 'Nagpur Local Hub',        city: 'Nagpur',        parentCity: 'Mumbai',       lat: 21.1458, lng: 79.0882 },
+
+  // ── Gujarat (under Ahmedabad) — 2 locals ──
+  { name: 'Surat Local Hub',         city: 'Surat',         parentCity: 'Ahmedabad',    lat: 21.1702, lng: 72.8311 },
+  { name: 'Vadodara Local Hub',      city: 'Vadodara',      parentCity: 'Ahmedabad',    lat: 22.3072, lng: 73.1812 },
+
+  // ── Uttar Pradesh (under Lucknow) — big state, 3 locals ──
+  { name: 'Noida Local Hub',         city: 'Noida',         parentCity: 'Lucknow',      lat: 28.5355, lng: 77.3910 },
+  { name: 'Varanasi Local Hub',      city: 'Varanasi',      parentCity: 'Lucknow',      lat: 25.3176, lng: 82.9739 },
+  { name: 'Agra Local Hub',          city: 'Agra',          parentCity: 'Lucknow',      lat: 27.1767, lng: 78.0081 },
+
+  // ── Rajasthan (under Jaipur) — 2 locals ──
+  { name: 'Jodhpur Local Hub',       city: 'Jodhpur',       parentCity: 'Jaipur',       lat: 26.2389, lng: 73.0243 },
+  { name: 'Udaipur Local Hub',       city: 'Udaipur',       parentCity: 'Jaipur',       lat: 24.5854, lng: 73.7125 },
+
+  // ── Punjab/Haryana (under Chandigarh) — 2 locals ──
+  { name: 'Ludhiana Local Hub',      city: 'Ludhiana',      parentCity: 'Chandigarh',   lat: 30.9010, lng: 75.8573 },
+  { name: 'Amritsar Local Hub',      city: 'Amritsar',      parentCity: 'Chandigarh',   lat: 31.6340, lng: 74.8723 },
+
+  // ── Karnataka (under Bangalore) — 3 locals ──
+  { name: 'Mysore Local Hub',        city: 'Mysore',        parentCity: 'Bangalore',    lat: 12.2958, lng: 76.6394 },
+  { name: 'Hubli Local Hub',         city: 'Hubli',         parentCity: 'Bangalore',    lat: 15.3647, lng: 75.1240 },
+  { name: 'Mangalore Local Hub',     city: 'Mangalore',     parentCity: 'Bangalore',    lat: 12.9141, lng: 74.8560 },
+
+  // ── Tamil Nadu (under Chennai) — 3 locals ──
+  { name: 'Coimbatore Local Hub',    city: 'Coimbatore',    parentCity: 'Chennai',      lat: 11.0168, lng: 76.9558 },
+  { name: 'Madurai Local Hub',       city: 'Madurai',       parentCity: 'Chennai',      lat:  9.9252, lng: 78.1198 },
+  { name: 'Trichy Local Hub',        city: 'Trichy',        parentCity: 'Chennai',      lat: 10.7905, lng: 78.7047 },
+
+  // ── Telangana (under Hyderabad) — 1 local ──
+  { name: 'Warangal Local Hub',      city: 'Warangal',      parentCity: 'Hyderabad',    lat: 17.9784, lng: 79.5941 },
+
+  // ── Andhra Pradesh (under Vijayawada) — 2 locals ──
+  { name: 'Vizag Local Hub',         city: 'Vizag',         parentCity: 'Vijayawada',   lat: 17.6868, lng: 83.2185 },
+  { name: 'Tirupati Local Hub',      city: 'Tirupati',      parentCity: 'Vijayawada',   lat: 13.6288, lng: 79.4192 },
+
+  // ── Kerala (under Kochi) — 2 locals ──
+  { name: 'Trivandrum Local Hub',    city: 'Trivandrum',    parentCity: 'Kochi',        lat:  8.5241, lng: 76.9366 },
+  { name: 'Kozhikode Local Hub',     city: 'Kozhikode',     parentCity: 'Kochi',        lat: 11.2588, lng: 75.7804 },
+
+  // ── West Bengal (under Kolkata) — 2 locals ──
+  { name: 'Siliguri Local Hub',      city: 'Siliguri',      parentCity: 'Kolkata',      lat: 26.7271, lng: 88.3953 },
+  { name: 'Durgapur Local Hub',      city: 'Durgapur',      parentCity: 'Kolkata',      lat: 23.5204, lng: 87.3119 },
+
+  // ── Bihar (under Patna) — 1 local ──
+  { name: 'Gaya Local Hub',          city: 'Gaya',          parentCity: 'Patna',        lat: 24.7955, lng: 84.9994 },
+
+  // ── Odisha (under Bhubaneswar) — 1 local ──
+  { name: 'Cuttack Local Hub',       city: 'Cuttack',       parentCity: 'Bhubaneswar',  lat: 20.4625, lng: 85.8830 },
+
+  // ── Madhya Pradesh (under Bhopal) — 2 locals ──
+  { name: 'Indore Local Hub',        city: 'Indore',        parentCity: 'Bhopal',       lat: 22.7196, lng: 75.8577 },
+  { name: 'Jabalpur Local Hub',      city: 'Jabalpur',      parentCity: 'Bhopal',       lat: 23.1815, lng: 79.9864 },
+
+  // ── Assam (under Guwahati) — 1 local ──
+  { name: 'Dibrugarh Local Hub',     city: 'Dibrugarh',     parentCity: 'Guwahati',     lat: 27.4728, lng: 94.9120 },
+
+  // ── Uttarakhand (under Dehradun) — 1 local ──
+  { name: 'Haridwar Local Hub',      city: 'Haridwar',      parentCity: 'Dehradun',     lat: 29.9457, lng: 78.1642 },
+
+  // ── J&K (under Jammu) — 1 local ──
+  { name: 'Srinagar Local Hub',      city: 'Srinagar',      parentCity: 'Jammu',        lat: 34.0837, lng: 74.7973 },
 ]
 
 // ── CITY COORDS (for nearest-hub computation in seed) ────────────────
 const cityCoords: Record<string, [number, number]> = {
+  // Main hub cities
   mumbai: [19.0760, 72.8777], delhi: [28.6139, 77.2090],
   bangalore: [12.9716, 77.5946], chennai: [13.0827, 80.2707],
-  pune: [18.5204, 73.8567], hyderabad: [17.3850, 78.4867],
-  kolkata: [22.5726, 88.3639], 'new delhi': [28.6139, 77.2090],
-  noida: [28.5355, 77.3910], gurgaon: [28.4595, 77.0266],
-  jaipur: [26.9124, 75.7873], lucknow: [26.8467, 80.9462],
-  ahmedabad: [23.0225, 72.5714], indore: [22.7196, 75.8577],
-  patna: [25.5941, 85.1376], guwahati: [26.1445, 91.7362],
-  shimla: [31.1048, 77.1734], gangtok: [27.3389, 88.6065],
-  vizag: [17.6868, 83.2185], kochi: [9.9312, 76.2673],
-  surat: [21.1702, 72.8311], varanasi: [25.3176, 82.9739],
+  hyderabad: [17.3850, 78.4867], kolkata: [22.5726, 88.3639],
+  ahmedabad: [23.0225, 72.5714], lucknow: [26.8467, 80.9462],
+  jaipur: [26.9124, 75.7873], chandigarh: [30.7333, 76.7794],
+  kochi: [9.9312, 76.2673], patna: [25.5941, 85.1376],
+  bhopal: [23.2599, 77.4126], bhubaneswar: [20.2961, 85.8245],
+  ranchi: [23.3441, 85.3096], raipur: [21.2514, 81.6296],
+  guwahati: [26.1445, 91.7362], dehradun: [30.3165, 78.0322],
+  shimla: [31.1048, 77.1734], jammu: [32.7266, 74.8570],
+  panaji: [15.4909, 73.8278], vijayawada: [16.5062, 80.6480],
+  imphal: [24.8170, 93.9368], shillong: [25.5788, 91.8933],
+  gangtok: [27.3389, 88.6065], agartala: [23.8315, 91.2868],
+  aizawl: [23.7271, 92.7176], kohima: [25.6751, 94.1086],
+  itanagar: [27.0844, 93.6053],
+  // Local hub / delivery cities
+  pune: [18.5204, 73.8567], nashik: [19.9975, 73.7898],
+  nagpur: [21.1458, 79.0882], surat: [21.1702, 72.8311],
+  vadodara: [22.3072, 73.1812], noida: [28.5355, 77.3910],
+  gurgaon: [28.4595, 77.0266], agra: [27.1767, 78.0081],
+  varanasi: [25.3176, 82.9739], jodhpur: [26.2389, 73.0243],
+  udaipur: [24.5854, 73.7125], ludhiana: [30.9010, 75.8573],
+  amritsar: [31.6340, 74.8723], mysore: [12.2958, 76.6394],
+  hubli: [15.3647, 75.1240], mangalore: [12.9141, 74.8560],
+  coimbatore: [11.0168, 76.9558], madurai: [9.9252, 78.1198],
+  trichy: [10.7905, 78.7047], warangal: [17.9784, 79.5941],
+  vizag: [17.6868, 83.2185], tirupati: [13.6288, 79.4192],
+  trivandrum: [8.5241, 76.9366], kozhikode: [11.2588, 75.7804],
+  siliguri: [26.7271, 88.3953], durgapur: [23.5204, 87.3119],
+  gaya: [24.7955, 84.9994], cuttack: [20.4625, 85.8830],
+  indore: [22.7196, 75.8577], jabalpur: [23.1815, 79.9864],
+  dibrugarh: [27.4728, 94.9120], haridwar: [29.9457, 78.1642],
+  srinagar: [34.0837, 74.7973],
+  // Other delivery cities
+  'new delhi': [28.6139, 77.2090], 'navi mumbai': [19.0330, 73.0297],
   tirupur: [11.1085, 77.3411], panipat: [29.3909, 76.9635],
-  'navi mumbai': [19.0330, 73.0297],
-  nashik: [19.9975, 73.7898], aurangabad: [19.8762, 75.3433],
-  mysore: [12.2958, 76.6394], hubli: [15.3647, 75.1240],
-  coimbatore: [11.0168, 76.9558], agra: [27.1767, 78.0081],
+  aurangabad: [19.8762, 75.3433],
 }
 
-const MAIN_HUB_CITIES = ['mumbai', 'delhi', 'new delhi', 'bangalore', 'chennai']
+// All main hub cities — orders to these cities are "urban" (direct from main hub)
+const MAIN_HUB_CITIES = [
+  'mumbai', 'delhi', 'new delhi', 'bangalore', 'chennai', 'hyderabad',
+  'kolkata', 'ahmedabad', 'lucknow', 'jaipur', 'chandigarh', 'kochi',
+  'patna', 'bhopal', 'bhubaneswar', 'ranchi', 'raipur', 'guwahati',
+  'dehradun', 'shimla', 'jammu', 'panaji', 'vijayawada',
+  'imphal', 'shillong', 'gangtok', 'agartala', 'aizawl', 'kohima', 'itanagar',
+]
 
 function getCoords(city: string): [number, number] | null {
   const k = Object.keys(cityCoords).find((c) => city.toLowerCase().includes(c))
@@ -263,34 +391,136 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number) {
 }
 
 // ── DELIVERY AGENTS ───────────────────────────────────────────────────
+// Each main hub: 1 LINE_HAUL (truck/van) + 1-2 LAST_MILE (bike)
+// Each local hub: 1 LAST_MILE agent
 const agentSpecs = [
-  // Mumbai Main Hub
-  { name: 'Ravi Patil',    phone: '9100000001', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Mumbai' },
-  { name: 'Suresh More',   phone: '9100000002', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Mumbai' },
-  { name: 'Amit Shah',     phone: '9100000003', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mumbai' },
-  { name: 'Priya Joshi',   phone: '9100000004', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mumbai' },
-  // Nashik Local Hub
-  { name: 'Ganesh Wagh',   phone: '9100000005', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Nashik' },
-  { name: 'Sunita Bhosle', phone: '9100000006', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Nashik' },
-  // Aurangabad Local Hub
-  { name: 'Raj Deshmukh',  phone: '9100000007', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Aurangabad' },
-  // Delhi Main Hub
-  { name: 'Vikram Singh',  phone: '9100000008', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Delhi' },
-  { name: 'Neha Gupta',    phone: '9100000009', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Delhi' },
-  // Agra Local Hub
-  { name: 'Ramesh Yadav',  phone: '9100000010', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Agra' },
-  // Bangalore Main Hub
-  { name: 'Kiran Reddy',   phone: '9100000011', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Bangalore' },
-  { name: 'Deepa Nair',    phone: '9100000012', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Bangalore' },
-  // Mysore Local Hub
-  { name: 'Arjun Kumar',   phone: '9100000013', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mysore' },
-  // Hubli Local Hub
-  { name: 'Shreedhar Rao', phone: '9100000016', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Hubli' },
-  // Chennai Main Hub
-  { name: 'Murugan S',     phone: '9100000014', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Chennai' },
-  { name: 'Selvaraj K',    phone: '9100000017', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Chennai' },
-  // Coimbatore Local Hub
-  { name: 'Kavitha R',     phone: '9100000015', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Coimbatore' },
+  // ── Maharashtra ──
+  { name: 'Ravi Patil',       phone: '9100000001', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Mumbai' },
+  { name: 'Suresh More',      phone: '9100000002', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Mumbai' },
+  { name: 'Amit Shah',        phone: '9100000003', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mumbai' },
+  { name: 'Priya Joshi',      phone: '9100000004', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mumbai' },
+  { name: 'Tanvi Kulkarni',   phone: '9100000005', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Pune' },
+  { name: 'Ganesh Wagh',      phone: '9100000006', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Nashik' },
+  { name: 'Pravin Meshram',   phone: '9100000007', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Nagpur' },
+
+  // ── Gujarat ──
+  { name: 'Hardik Patel',     phone: '9100000010', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Ahmedabad' },
+  { name: 'Krupa Shah',       phone: '9100000011', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Ahmedabad' },
+  { name: 'Jayesh Desai',     phone: '9100000012', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Surat' },
+  { name: 'Nisha Rathod',     phone: '9100000013', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Vadodara' },
+
+  // ── Delhi / NCR ──
+  { name: 'Vikram Singh',     phone: '9100000020', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Delhi' },
+  { name: 'Neha Gupta',       phone: '9100000021', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Delhi' },
+  { name: 'Rohit Sharma',     phone: '9100000022', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Delhi' },
+
+  // ── Uttar Pradesh ──
+  { name: 'Anil Yadav',       phone: '9100000025', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Lucknow' },
+  { name: 'Preeti Mishra',    phone: '9100000026', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Lucknow' },
+  { name: 'Saurabh Tiwari',   phone: '9100000027', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Noida' },
+  { name: 'Mohd Irfan',       phone: '9100000028', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Varanasi' },
+  { name: 'Ramesh Yadav',     phone: '9100000029', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Agra' },
+
+  // ── Rajasthan ──
+  { name: 'Mahendra Shekhawat', phone: '9100000030', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Jaipur' },
+  { name: 'Kavita Rathore',   phone: '9100000031', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Jaipur' },
+  { name: 'Bharat Gehlot',    phone: '9100000032', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Jodhpur' },
+  { name: 'Laxmi Meena',      phone: '9100000033', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Udaipur' },
+
+  // ── Punjab / Haryana ──
+  { name: 'Gurpreet Kaur',    phone: '9100000035', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Chandigarh' },
+  { name: 'Mandeep Singh',    phone: '9100000036', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Chandigarh' },
+  { name: 'Harjinder Gill',   phone: '9100000037', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Ludhiana' },
+  { name: 'Rajwinder Kaur',   phone: '9100000038', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Amritsar' },
+
+  // ── Karnataka ──
+  { name: 'Kiran Reddy',      phone: '9100000040', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Bangalore' },
+  { name: 'Deepa Nair',       phone: '9100000041', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Bangalore' },
+  { name: 'Naveen Gowda',     phone: '9100000042', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Bangalore' },
+  { name: 'Arjun Kumar',      phone: '9100000043', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mysore' },
+  { name: 'Shreedhar Rao',    phone: '9100000044', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Hubli' },
+  { name: 'Prashanth Shetty', phone: '9100000045', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mangalore' },
+
+  // ── Tamil Nadu ──
+  { name: 'Selvaraj K',       phone: '9100000050', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Chennai' },
+  { name: 'Murugan S',        phone: '9100000051', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Chennai' },
+  { name: 'Kavitha R',        phone: '9100000052', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Coimbatore' },
+  { name: 'Senthil M',        phone: '9100000053', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Madurai' },
+  { name: 'Ranjith P',        phone: '9100000054', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Trichy' },
+
+  // ── Telangana ──
+  { name: 'Srinivas Reddy',   phone: '9100000055', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Hyderabad' },
+  { name: 'Anusha Reddy',     phone: '9100000056', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Hyderabad' },
+  { name: 'Ramesh Kummari',   phone: '9100000057', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Warangal' },
+
+  // ── Andhra Pradesh ──
+  { name: 'Venkat Rao',       phone: '9100000058', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Vijayawada' },
+  { name: 'Suresh Naidu',     phone: '9100000059', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Vijayawada' },
+  { name: 'Pranav Naidu',     phone: '9100000060', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Vizag' },
+  { name: 'Lakshmi Devi',     phone: '9100000061', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Tirupati' },
+
+  // ── Kerala ──
+  { name: 'Thomas Mathew',    phone: '9100000065', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Kochi' },
+  { name: 'Anjali Menon',     phone: '9100000066', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Kochi' },
+  { name: 'Vishnu Pillai',    phone: '9100000067', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Trivandrum' },
+  { name: 'Faisal K',         phone: '9100000068', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Kozhikode' },
+
+  // ── West Bengal ──
+  { name: 'Sourav Das',       phone: '9100000070', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Kolkata' },
+  { name: 'Priya Mukherjee',  phone: '9100000071', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Kolkata' },
+  { name: 'Bijoy Sarkar',     phone: '9100000072', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Siliguri' },
+  { name: 'Anup Ghosh',       phone: '9100000073', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Durgapur' },
+
+  // ── Bihar ──
+  { name: 'Rajesh Prasad',    phone: '9100000075', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Patna' },
+  { name: 'Suman Kumar',      phone: '9100000076', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Patna' },
+  { name: 'Ajay Thakur',      phone: '9100000077', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Gaya' },
+
+  // ── Odisha ──
+  { name: 'Debasis Sahoo',    phone: '9100000080', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Bhubaneswar' },
+  { name: 'Smita Panda',      phone: '9100000081', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Bhubaneswar' },
+  { name: 'Manoj Jena',       phone: '9100000082', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Cuttack' },
+
+  // ── Jharkhand ──
+  { name: 'Dinesh Mahto',     phone: '9100000083', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Ranchi' },
+  { name: 'Seema Kumari',     phone: '9100000084', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Ranchi' },
+
+  // ��─ Madhya Pradesh ──
+  { name: 'Rajendra Jain',    phone: '9100000085', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Bhopal' },
+  { name: 'Sunita Yadav',     phone: '9100000086', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Bhopal' },
+  { name: 'Yash Agarwal',     phone: '9100000087', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Indore' },
+  { name: 'Raghav Tiwari',    phone: '9100000088', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Jabalpur' },
+
+  // ── Chhattisgarh ──
+  { name: 'Bhupesh Sahu',     phone: '9100000089', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Raipur' },
+  { name: 'Savita Verma',     phone: '9100000090', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Raipur' },
+
+  // ── Goa ──
+  { name: 'Rohan Naik',       phone: '9100000091', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Panaji' },
+
+  // ── Uttarakhand ──
+  { name: 'Pankaj Rawat',     phone: '9100000092', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Dehradun' },
+  { name: 'Meena Bisht',      phone: '9100000093', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Dehradun' },
+  { name: 'Amit Chauhan',     phone: '9100000094', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Haridwar' },
+
+  // ── Himachal Pradesh ──
+  { name: 'Vikram Thakur',    phone: '9100000095', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Shimla' },
+
+  // ── J&K ──
+  { name: 'Tariq Ahmed',      phone: '9100000096', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Jammu' },
+  { name: 'Bilal Mir',        phone: '9100000097', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Srinagar' },
+
+  // ── Northeast ──
+  { name: 'Bhaskar Deka',     phone: '9100000100', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Guwahati' },
+  { name: 'Rupali Bora',      phone: '9100000101', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Guwahati' },
+  { name: 'Pranjal Hazarika', phone: '9100000102', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Dibrugarh' },
+  { name: 'Laishram Singh',   phone: '9100000103', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Imphal' },
+  { name: 'Banri Lyngdoh',    phone: '9100000104', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Shillong' },
+  { name: 'Tenzin Lepcha',    phone: '9100000105', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Gangtok' },
+  { name: 'Biplab Deb',       phone: '9100000106', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Agartala' },
+  { name: 'Lalnunmawia',      phone: '9100000107', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Aizawl' },
+  { name: 'Ato Yeptho',       phone: '9100000108', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Kohima' },
+  { name: 'Tamo Riba',        phone: '9100000109', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Itanagar' },
 ]
 
 // Phase 2 status pools — split by route type so seeded orders never have unreachable statuses
@@ -352,9 +582,10 @@ async function main() {
   console.log('Creating main hubs...')
   const mainHubs: SeedHub[] = []
   for (const m of mainHubsData) {
-    const h = await prisma.hub.create({ data: { ...m, type: 'MAIN' } })
+    const { state, ...hubData } = m
+    const h = await prisma.hub.create({ data: { ...hubData, type: 'MAIN' } })
     mainHubs.push(h as SeedHub)
-    console.log(`  + ${h.name}`)
+    console.log(`  + ${h.name} (${state})`)
   }
 
   console.log('Creating local hubs...')

@@ -9,7 +9,11 @@ import hubsRoutes from './routes/hubs'
 import agentRoutes from './routes/agent'
 
 const app = express()
-app.use(cors())
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json())
 
 app.get('/', (_req, res) => {
