@@ -11,6 +11,7 @@ import CreateOrder from './pages/CreateOrder'
 import OrderDetail from './pages/OrderDetail'
 import Profile from './pages/Profile'
 import Track from './pages/Track'
+import MapView from './pages/MapView'
 
 export default function App() {
   return (
@@ -52,6 +53,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <OrderDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/map"
+              element={
+                <ProtectedRoute>
+                  <MapView />
                 </ProtectedRoute>
               }
             />

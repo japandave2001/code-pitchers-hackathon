@@ -9,12 +9,38 @@ datasource db {
 model Vendor {
   id          String   @id @default(cuid())
   email       String   @unique
-  
+
   password    String
   companyName String
   phone       String
   apiKey      String   @unique @default(cuid())
   createdAt   DateTime @default(now())
+
+  orders Order[]
+}
+
+model Hub {
+  id       String  @id @default(cuid())
+  name     String
+  city     String
+  type     String  // "MAIN" | "LOCAL"
+  parentId String? // for LOCAL hubs: ID of their parent MAIN hub
+  lat      Float
+  lng      Float
+
+  agents DeliveryAgent[]
+  orders Order[]         @relation("assignedHub")
+}
+
+model DeliveryAgent {
+  id          String  @id @default(cuid())
+  name        String
+  phone       String
+  vehicle     String  // "BIKE" | "VAN" | "TRUCK"
+  agentType   String  // "LAST_MILE" | "LINE_HAUL"
+  isAvailable Boolean @default(true)
+  hubId       String
+  hub         Hub     @relation(fields: [hubId], references: [id])
 
   orders Order[]
 }
@@ -43,6 +69,12 @@ model Order {
 
   status         String   @default("PENDING")
   trackingToken  String   @unique @default(cuid())
+
+  agentId       String?
+  agent         DeliveryAgent? @relation(fields: [agentId], references: [id])
+  assignedHubId String?
+  assignedHub   Hub?           @relation("assignedHub", fields: [assignedHubId], references: [id])
+  isUrban       Boolean        @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

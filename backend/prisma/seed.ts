@@ -19,7 +19,6 @@ const vendors = [
   { email: 'ship@nykaa.com', companyName: 'Nykaa', phone: '9800000005' },
 ]
 
-const statuses = ['PENDING', 'CONFIRMED', 'PICKED_UP', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED']
 const priorities: Array<'STANDARD' | 'EXPRESS' | 'SAME_DAY'> = ['STANDARD', 'EXPRESS', 'SAME_DAY']
 
 // Realistic product catalog per vendor type
@@ -190,9 +189,132 @@ const deliveries = [
   { address: '16 Old Palasia', city: 'Indore', pincode: '452001', name: 'Sakshi Joshi', phone: '9876543248', email: 'sakshi.j@example.com' },
   { address: '3 Beach Road', city: 'Vizag', pincode: '530001', name: 'Pranav Naidu', phone: '9876543249', email: null },
   { address: '27 Law Garden', city: 'Ahmedabad', pincode: '380006', name: 'Krupa Patel', phone: '9876543250', email: 'krupa.p@example.com' },
+  // Phase 2 — semi-urban deliveries (route through local hubs)
+  { address: '14 College Road, Nashik', city: 'Nashik', pincode: '422005', name: 'Pooja Pawar', phone: '9876544001', email: 'pooja.p@example.com' },
+  { address: '6 CIDCO Sector 2', city: 'Nashik', pincode: '422009', name: 'Mahesh Jadhav', phone: '9876544002', email: null },
+  { address: '12 N-2 CIDCO', city: 'Aurangabad', pincode: '431003', name: 'Snehal Kale', phone: '9876544003', email: 'snehal.k@example.com' },
+  { address: '5 Saraswati Colony', city: 'Aurangabad', pincode: '431001', name: 'Yogesh Shinde', phone: '9876544004', email: 'yogesh.s@example.com' },
+  { address: '8 Vijaynagar', city: 'Mysore', pincode: '570017', name: 'Pavithra Iyengar', phone: '9876544005', email: 'pavithra.i@example.com' },
+  { address: '24 Kuvempunagar', city: 'Mysore', pincode: '570023', name: 'Chetan Bhat', phone: '9876544006', email: null },
+  { address: '11 Vidyanagar', city: 'Hubli', pincode: '580031', name: 'Anita Patil', phone: '9876544007', email: 'anita.p@example.com' },
+  { address: '3 Gokul Road', city: 'Hubli', pincode: '580030', name: 'Mahantesh Kulkarni', phone: '9876544008', email: 'mahantesh.k@example.com' },
+  { address: '19 RS Puram West', city: 'Coimbatore', pincode: '641002', name: 'Kavin Murugan', phone: '9876544009', email: 'kavin.m@example.com' },
+  { address: '7 Sanjay Place', city: 'Agra', pincode: '282002', name: 'Sahil Khan', phone: '9876544010', email: 'sahil.k@example.com' },
+  { address: '21 Tajganj Road', city: 'Agra', pincode: '282001', name: 'Riddhi Agarwal', phone: '9876544011', email: null },
 ]
 
-// Deterministic pseudo-random using a seed — so every dev gets the same data
+// ── HUB DATA ──────────────────────────────────────────────────────────
+const mainHubsData = [
+  { name: 'Mumbai Main Hub',    city: 'Mumbai',    lat: 19.0760, lng: 72.8777 },
+  { name: 'Delhi Main Hub',     city: 'Delhi',     lat: 28.6139, lng: 77.2090 },
+  { name: 'Bangalore Main Hub', city: 'Bangalore', lat: 12.9716, lng: 77.5946 },
+  { name: 'Chennai Main Hub',   city: 'Chennai',   lat: 13.0827, lng: 80.2707 },
+]
+
+const localHubsData = [
+  { name: 'Nashik Local Hub',      city: 'Nashik',      parentCity: 'Mumbai',    lat: 19.9975, lng: 73.7898 },
+  { name: 'Aurangabad Local Hub',  city: 'Aurangabad',  parentCity: 'Mumbai',    lat: 19.8762, lng: 75.3433 },
+  { name: 'Mysore Local Hub',      city: 'Mysore',      parentCity: 'Bangalore', lat: 12.2958, lng: 76.6394 },
+  { name: 'Hubli Local Hub',       city: 'Hubli',       parentCity: 'Bangalore', lat: 15.3647, lng: 75.1240 },
+  { name: 'Coimbatore Local Hub',  city: 'Coimbatore',  parentCity: 'Chennai',   lat: 11.0168, lng: 76.9558 },
+  { name: 'Agra Local Hub',        city: 'Agra',        parentCity: 'Delhi',     lat: 27.1767, lng: 78.0081 },
+]
+
+// ── CITY COORDS (for nearest-hub computation in seed) ────────────────
+const cityCoords: Record<string, [number, number]> = {
+  mumbai: [19.0760, 72.8777], delhi: [28.6139, 77.2090],
+  bangalore: [12.9716, 77.5946], chennai: [13.0827, 80.2707],
+  pune: [18.5204, 73.8567], hyderabad: [17.3850, 78.4867],
+  kolkata: [22.5726, 88.3639], 'new delhi': [28.6139, 77.2090],
+  noida: [28.5355, 77.3910], gurgaon: [28.4595, 77.0266],
+  jaipur: [26.9124, 75.7873], lucknow: [26.8467, 80.9462],
+  ahmedabad: [23.0225, 72.5714], indore: [22.7196, 75.8577],
+  patna: [25.5941, 85.1376], guwahati: [26.1445, 91.7362],
+  shimla: [31.1048, 77.1734], gangtok: [27.3389, 88.6065],
+  vizag: [17.6868, 83.2185], kochi: [9.9312, 76.2673],
+  surat: [21.1702, 72.8311], varanasi: [25.3176, 82.9739],
+  tirupur: [11.1085, 77.3411], panipat: [29.3909, 76.9635],
+  'navi mumbai': [19.0330, 73.0297],
+  nashik: [19.9975, 73.7898], aurangabad: [19.8762, 75.3433],
+  mysore: [12.2958, 76.6394], hubli: [15.3647, 75.1240],
+  coimbatore: [11.0168, 76.9558], agra: [27.1767, 78.0081],
+}
+
+const MAIN_HUB_CITIES = ['mumbai', 'delhi', 'new delhi', 'bangalore', 'chennai']
+
+function getCoords(city: string): [number, number] | null {
+  const k = Object.keys(cityCoords).find((c) => city.toLowerCase().includes(c))
+  return k ? cityCoords[k] : null
+}
+
+function isMainHubCity(city: string) {
+  return MAIN_HUB_CITIES.some((c) => city.toLowerCase().includes(c))
+}
+
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const R = 6371
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLng = ((lng2 - lng1) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+// ── DELIVERY AGENTS ───────────────────────────────────────────────────
+const agentSpecs = [
+  // Mumbai Main Hub
+  { name: 'Ravi Patil',    phone: '9100000001', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Mumbai' },
+  { name: 'Suresh More',   phone: '9100000002', vehicle: 'VAN',   agentType: 'LINE_HAUL', hubCity: 'Mumbai' },
+  { name: 'Amit Shah',     phone: '9100000003', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mumbai' },
+  { name: 'Priya Joshi',   phone: '9100000004', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mumbai' },
+  // Nashik Local Hub
+  { name: 'Ganesh Wagh',   phone: '9100000005', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Nashik' },
+  { name: 'Sunita Bhosle', phone: '9100000006', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Nashik' },
+  // Aurangabad Local Hub
+  { name: 'Raj Deshmukh',  phone: '9100000007', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Aurangabad' },
+  // Delhi Main Hub
+  { name: 'Vikram Singh',  phone: '9100000008', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Delhi' },
+  { name: 'Neha Gupta',    phone: '9100000009', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Delhi' },
+  // Agra Local Hub
+  { name: 'Ramesh Yadav',  phone: '9100000010', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Agra' },
+  // Bangalore Main Hub
+  { name: 'Kiran Reddy',   phone: '9100000011', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Bangalore' },
+  { name: 'Deepa Nair',    phone: '9100000012', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Bangalore' },
+  // Mysore Local Hub
+  { name: 'Arjun Kumar',   phone: '9100000013', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Mysore' },
+  // Hubli Local Hub
+  { name: 'Shreedhar Rao', phone: '9100000016', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Hubli' },
+  // Chennai Main Hub
+  { name: 'Murugan S',     phone: '9100000014', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Chennai' },
+  { name: 'Selvaraj K',    phone: '9100000017', vehicle: 'TRUCK', agentType: 'LINE_HAUL', hubCity: 'Chennai' },
+  // Coimbatore Local Hub
+  { name: 'Kavitha R',     phone: '9100000015', vehicle: 'BIKE',  agentType: 'LAST_MILE', hubCity: 'Coimbatore' },
+]
+
+// Phase 2 status pools — split by route type so seeded orders never have unreachable statuses
+const urbanStatusPool = [
+  ...Array(5).fill('PENDING'),
+  ...Array(4).fill('CONFIRMED'),
+  ...Array(6).fill('AT_MAIN_HUB'),
+  ...Array(7).fill('OUT_FOR_DELIVERY'),
+  ...Array(15).fill('DELIVERED'),
+  ...Array(3).fill('CANCELLED'),
+]
+const semiUrbanStatusPool = [
+  ...Array(4).fill('PENDING'),
+  ...Array(3).fill('CONFIRMED'),
+  ...Array(5).fill('AT_MAIN_HUB'),
+  ...Array(5).fill('IN_TRANSIT_TO_LOCAL_HUB'),
+  ...Array(5).fill('AT_LOCAL_HUB'),
+  ...Array(6).fill('OUT_FOR_DELIVERY'),
+  ...Array(12).fill('DELIVERED'),
+  ...Array(3).fill('CANCELLED'),
+]
+
+const POST_HUB_URBAN = new Set(['AT_MAIN_HUB', 'OUT_FOR_DELIVERY', 'DELIVERED'])
+const POST_HUB_SEMI = new Set(['AT_MAIN_HUB', 'IN_TRANSIT_TO_LOCAL_HUB', 'AT_LOCAL_HUB', 'OUT_FOR_DELIVERY', 'DELIVERED'])
+
 function seededRandom(seed: number) {
   let s = seed
   return () => {
@@ -201,58 +323,107 @@ function seededRandom(seed: number) {
   }
 }
 
-function generateOrders(vendorCount: number): Array<{
-  vendorIdx: number
-  description: string
-  weight: number
-  priority: string
-  pickupAddress: string
-  pickupCity: string
-  pickupPincode: string
-  pickupContact: string
-  pickupPhone: string
-  deliveryAddress: string
-  deliveryCity: string
-  deliveryPincode: string
-  customerName: string
-  customerPhone: string
-  customerEmail: string | null
-  status: string
-}> {
-  const rand = seededRandom(42)
-  const pick = <T>(arr: T[]) => arr[Math.floor(rand() * arr.length)]
-  const totalOrders = 75
+type SeedHub = { id: string; name: string; city: string; type: string; lat: number; lng: number }
 
-  // Distribute orders across vendors: roughly weighted
-  // Amazon: ~22, Flipkart: ~18, Meesho: ~15, Myntra: ~12, Nykaa: ~8
-  const weights = [22, 18, 15, 12, 8]
-  const vendorAssignments: number[] = []
-  for (let v = 0; v < vendorCount; v++) {
-    for (let i = 0; i < weights[v]; i++) {
-      vendorAssignments.push(v)
-    }
+function findNearestMainHub(city: string, mainHubs: SeedHub[]): SeedHub {
+  // exact city match first
+  const direct = mainHubs.find((h) => city.toLowerCase().includes(h.city.toLowerCase()))
+  if (direct) return direct
+  const coords = getCoords(city)
+  if (!coords) return mainHubs[0]
+  let nearest = mainHubs[0]
+  let min = Infinity
+  for (const h of mainHubs) {
+    const d = haversine(coords[0], coords[1], h.lat, h.lng)
+    if (d < min) { min = d; nearest = h }
+  }
+  return nearest
+}
+
+async function main() {
+  console.log('Clearing existing data (orders → agents → hubs → vendors)...')
+  await prisma.order.deleteMany()
+  await prisma.deliveryAgent.deleteMany()
+  await prisma.hub.deleteMany()
+  await prisma.vendor.deleteMany()
+
+  // ── HUBS ────────────────────────────────────────────────────────────
+  console.log('Creating main hubs...')
+  const mainHubs: SeedHub[] = []
+  for (const m of mainHubsData) {
+    const h = await prisma.hub.create({ data: { ...m, type: 'MAIN' } })
+    mainHubs.push(h as SeedHub)
+    console.log(`  + ${h.name}`)
   }
 
-  // Status distribution: heavier on DELIVERED and IN_TRANSIT for realism
-  const statusPool = [
-    ...Array(8).fill('PENDING'),
-    ...Array(6).fill('CONFIRMED'),
-    ...Array(5).fill('PICKED_UP'),
-    ...Array(15).fill('IN_TRANSIT'),
-    ...Array(8).fill('OUT_FOR_DELIVERY'),
-    ...Array(25).fill('DELIVERED'),
-    ...Array(8).fill('CANCELLED'),
-  ]
+  console.log('Creating local hubs...')
+  const localHubs: SeedHub[] = []
+  for (const l of localHubsData) {
+    const parent = mainHubs.find((m) => m.city.toLowerCase() === l.parentCity.toLowerCase())!
+    const h = await prisma.hub.create({
+      data: { name: l.name, city: l.city, type: 'LOCAL', parentId: parent.id, lat: l.lat, lng: l.lng },
+    })
+    localHubs.push(h as SeedHub)
+    console.log(`  + ${h.name} (under ${parent.name})`)
+  }
 
-  const result = []
+  const allHubs = [...mainHubs, ...localHubs]
+
+  // ── AGENTS ──────────────────────────────────────────────────────────
+  console.log('\nCreating delivery agents...')
+  const createdAgents = []
+  for (const a of agentSpecs) {
+    const hub = allHubs.find((h) => h.city.toLowerCase() === a.hubCity.toLowerCase())
+    if (!hub) {
+      console.warn(`  ! No hub for agent ${a.name} (${a.hubCity})`)
+      continue
+    }
+    const agent = await prisma.deliveryAgent.create({
+      data: {
+        name: a.name,
+        phone: a.phone,
+        vehicle: a.vehicle,
+        agentType: a.agentType,
+        hubId: hub.id,
+      },
+    })
+    createdAgents.push(agent)
+  }
+  console.log(`  + ${createdAgents.length} agents created`)
+
+  // ── VENDORS ─────────────────────────────────────────────────────────
+  const hashedPassword = await bcrypt.hash(VENDOR_PASSWORD, 10)
+  console.log('\nCreating vendors...')
+  const createdVendors = []
+  for (const v of vendors) {
+    const vendor = await prisma.vendor.create({ data: { ...v, password: hashedPassword } })
+    createdVendors.push(vendor)
+    console.log(`  + ${vendor.companyName} (${vendor.email}) — API key: ${vendor.apiKey}`)
+  }
+
+  // ── ORDERS ──────────────────────────────────────────────────────────
+  console.log('\nCreating orders with route resolution...')
+  const rand = seededRandom(42)
+  const pick = <T>(arr: T[]) => arr[Math.floor(rand() * arr.length)]
+  const totalOrders = 90
+
+  const weights = [22, 18, 18, 16, 16] // distribution per vendor
+  const vendorAssignments: number[] = []
+  for (let v = 0; v < createdVendors.length; v++) {
+    for (let i = 0; i < weights[v]; i++) vendorAssignments.push(v)
+  }
+
   const usedDeliveries = new Set<number>()
+  let urbanCount = 0
+  let semiUrbanCount = 0
+  const statusCounts: Record<string, number> = {}
 
   for (let i = 0; i < totalOrders; i++) {
     const vendorIdx = vendorAssignments[i % vendorAssignments.length]
     const product = pick(products[vendorIdx])
     const pickup = pick(pickups[vendorIdx])
 
-    // Cycle through deliveries to get good spread, allow reuse after exhausting all
+    // Cycle through deliveries; allow reuse after exhausting
     let deliveryIdx = Math.floor(rand() * deliveries.length)
     if (usedDeliveries.size < deliveries.length) {
       while (usedDeliveries.has(deliveryIdx)) {
@@ -261,86 +432,69 @@ function generateOrders(vendorCount: number): Array<{
       usedDeliveries.add(deliveryIdx)
     }
     const delivery = deliveries[deliveryIdx]
-    const status = pick(statusPool)
     const priority = pick(priorities)
 
-    result.push({
-      vendorIdx,
-      description: product.description,
-      weight: product.weight,
-      priority,
-      pickupAddress: pickup.address,
-      pickupCity: pickup.city,
-      pickupPincode: pickup.pincode,
-      pickupContact: pickup.contact,
-      pickupPhone: pickup.phone,
-      deliveryAddress: delivery.address,
-      deliveryCity: delivery.city,
-      deliveryPincode: delivery.pincode,
-      customerName: delivery.name,
-      customerPhone: delivery.phone,
-      customerEmail: delivery.email,
-      status,
-    })
-  }
+    // Resolve route
+    const isUrban = isMainHubCity(delivery.city)
+    const mainHub = findNearestMainHub(pickup.city, mainHubs)
+    const status = pick(isUrban ? urbanStatusPool : semiUrbanStatusPool)
+    statusCounts[status] = (statusCounts[status] || 0) + 1
 
-  return result
-}
+    if (isUrban) urbanCount++
+    else semiUrbanCount++
 
-async function main() {
-  console.log('Clearing existing data...')
-  await prisma.order.deleteMany()
-  await prisma.vendor.deleteMany()
+    // Assign agent if order has progressed past CONFIRMED
+    let agentId: string | null = null
+    const postHubSet = isUrban ? POST_HUB_URBAN : POST_HUB_SEMI
+    if (status === 'CONFIRMED' || postHubSet.has(status)) {
+      const agentType = isUrban ? 'LAST_MILE' : 'LINE_HAUL'
+      const agent = createdAgents.find((a) => a.hubId === mainHub.id && a.agentType === agentType)
+      if (agent) agentId = agent.id
+    }
 
-  const hashedPassword = await bcrypt.hash(VENDOR_PASSWORD, 10)
-
-  console.log('Creating vendors...')
-  const createdVendors = []
-  for (const v of vendors) {
-    const vendor = await prisma.vendor.create({
-      data: { ...v, password: hashedPassword },
-    })
-    createdVendors.push(vendor)
-    console.log(`  + ${vendor.companyName} (${vendor.email}) — API key: ${vendor.apiKey}`)
-  }
-
-  const orders = generateOrders(vendors.length)
-
-  console.log('\nCreating orders...')
-  for (const o of orders) {
-    const { vendorIdx, ...data } = o
     await prisma.order.create({
       data: {
-        ...data,
         vendorId: createdVendors[vendorIdx].id,
+        description: product.description,
+        weight: product.weight,
+        priority,
+        pickupAddress: pickup.address,
+        pickupCity: pickup.city,
+        pickupPincode: pickup.pincode,
+        pickupContact: pickup.contact,
+        pickupPhone: pickup.phone,
+        deliveryAddress: delivery.address,
+        deliveryCity: delivery.city,
+        deliveryPincode: delivery.pincode,
+        customerName: delivery.name,
+        customerPhone: delivery.phone,
+        customerEmail: delivery.email,
+        status,
+        isUrban,
+        assignedHubId: mainHub.id,
+        agentId,
       },
     })
   }
-  console.log(`  + ${orders.length} orders created`)
+  console.log(`  + ${totalOrders} orders created`)
 
-  // Print summary
+  // ── SUMMARY ─────────────────────────────────────────────────────────
   console.log('\n--- Seed Summary ---')
+  console.log(`Hubs:    ${mainHubs.length} main + ${localHubs.length} local`)
+  console.log(`Agents:  ${createdAgents.length}`)
   console.log(`Vendors: ${createdVendors.length}`)
-  console.log(`Orders:  ${orders.length}`)
+  console.log(`Orders:  ${totalOrders} (${urbanCount} urban, ${semiUrbanCount} semi-urban)`)
 
-  // Status breakdown
-  const statusCounts: Record<string, number> = {}
-  for (const o of orders) {
-    statusCounts[o.status] = (statusCounts[o.status] || 0) + 1
-  }
   console.log('\nOrders by status:')
   for (const [status, count] of Object.entries(statusCounts).sort()) {
-    console.log(`  ${status.padEnd(20)} ${count}`)
+    console.log(`  ${status.padEnd(24)} ${count}`)
   }
 
-  // Per-vendor breakdown
   console.log('\nVendor accounts:')
   console.log(`  Password for all: ${VENDOR_PASSWORD}`)
   console.log('')
-  for (let i = 0; i < createdVendors.length; i++) {
-    const v = createdVendors[i]
-    const vendorOrders = orders.filter((o) => o.vendorIdx === i)
-    console.log(`  ${v.companyName.padEnd(16)} | ${v.email.padEnd(28)} | ${String(vendorOrders.length).padStart(2)} orders | API key: ${v.apiKey}`)
+  for (const v of createdVendors) {
+    console.log(`  ${v.companyName.padEnd(16)} | ${v.email.padEnd(28)} | API key: ${v.apiKey}`)
   }
 }
 

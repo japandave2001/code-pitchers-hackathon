@@ -14,6 +14,7 @@ import {
   InputAdornment,
   Button,
   IconButton,
+  Chip,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
@@ -29,6 +30,7 @@ type Order = {
   status: string
   customerName: string
   deliveryCity: string
+  isUrban: boolean
   createdAt: string
   trackingToken: string
 }
@@ -87,6 +89,7 @@ export default function Orders() {
                   <TableCell sx={{ fontWeight: 600 }}>Order ID</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Customer</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>City</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Route</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
@@ -95,7 +98,7 @@ export default function Orders() {
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                       {orders.length === 0 ? 'No orders yet.' : 'No orders match your search.'}
                     </TableCell>
                   </TableRow>
@@ -112,6 +115,18 @@ export default function Orders() {
                       </TableCell>
                       <TableCell>{o.customerName}</TableCell>
                       <TableCell>{o.deliveryCity}</TableCell>
+                      <TableCell>
+                        <Chip
+                          size="small"
+                          label={o.isUrban ? 'URBAN' : 'SEMI-URBAN'}
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '0.65rem',
+                            bgcolor: o.isUrban ? '#E8F5E9' : '#FFEBEE',
+                            color: o.isUrban ? '#2E7D32' : '#C62828',
+                          }}
+                        />
+                      </TableCell>
                       <TableCell>
                         <StatusChip status={o.status} />
                       </TableCell>

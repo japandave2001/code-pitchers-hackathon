@@ -17,7 +17,10 @@
       "Read(//opt/homebrew/opt/**)",
       "Read(//Applications/Postgres.app/Contents/**)",
       "Bash(node -e ' *)",
-      "Bash(npx tsx *)"
+      "Bash(npx tsx *)",
+      "Bash(npm --version)",
+      "Bash(npm ls *)",
+      "PowerShell(Set-Location D:\\\\code-pitchers-hackathon\\\\frontend; if \\(Test-Path node_modules\\) { \\(Get-ChildItem node_modules -Directory | Measure-Object\\).Count } else { 0 })"
     ]
   }
 }
