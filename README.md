@@ -6,25 +6,7 @@ Built for the Code Pitchers Hackathon by team **Code Pitchers**.
 
 ---
 
-## 1. The Pitch in 30 Seconds
-
-E-commerce sellers in India fight two problems at once:
-
-1. **Building shipping software is expensive.** Every brand has to wire up order intake, status flows, customer notifications, and tracking pages.
-2. **Tier-2 / tier-3 cities are slow and opaque.** Most courier APIs treat semi-urban deliveries as a black box — no live updates, no route visibility, no customer trust.
-
-**SwiftDrop solves both.** Vendors sign up, hit our REST API (or paste orders into our UI), and we handle the rest:
-
-- Auto-route every parcel through the correct **Main Hub → Local Hub → Customer** path based on the destination city.
-- Auto-assign a delivery agent on dispatch.
-- Send the customer a styled email on every status change.
-- Give the agent a single-link mobile page that broadcasts their live GPS to the customer's tracking page.
-
-The customer never has to wonder "where is my parcel?" — the answer is always one tap away on a live map.
-
----
-
-## 2. What's Built
+## 1. What's Built
 
 The product was built in three phases. **All three are complete and running together.**
 
@@ -49,7 +31,7 @@ The product was built in three phases. **All three are complete and running toge
 
 ---
 
-## 3. End-to-End Flow (the headline demo)
+## 2. End-to-End Flow (the headline demo)
 
 This is the single thread that ties every page together. It's also the demo we'd run for you.
 
@@ -96,7 +78,7 @@ The customer never hits any auth — their token is the auth. The agent never hi
 
 ---
 
-## 4. Architecture
+## 3. Architecture
 
 ### Tech Stack
 
@@ -120,7 +102,7 @@ The customer never hits any auth — their token is the auth. The agent never hi
 
 ---
 
-## 5. Repository Layout
+## 4. Repository Layout
 
 ```
 code-pitchers-hackathon/
@@ -179,7 +161,7 @@ code-pitchers-hackathon/
 
 ---
 
-## 6. Setup
+## 5. Setup
 
 ### Prerequisites
 - Node.js 18+
@@ -234,47 +216,7 @@ Each vendor has a unique API key surfaced on their **Profile** page (or printed 
 
 ---
 
-## 7. Live Demo Script (90 seconds)
-
-Open three browser tabs side by side: **Vendor**, **Customer**, **Agent**.
-
-### Setup (do before pitching)
-1. Log in as `admin@amazon.in` / `password123`.
-2. Click **Create Order**, fill the wizard with a **Nashik** delivery (semi-urban example).
-
-### The talk
-
-> "I'm a vendor like Amazon. I just placed an order on SwiftDrop."
-
-3. On the order detail page, point at the **Route Banner** — `Mumbai Main Hub → Nashik Local Hub → Customer`. **The system already knew.** Nashik isn't a metro, so we route it through the nearest local hub, computed by haversine distance.
-
-> "Now I'm dispatching the parcel."
-
-4. Click **Dispatch Order**. An agent card appears with name, phone, vehicle, and hub. Below it: a unique **Agent Link** — copy it.
-
-5. Open **Route Map** in another tab. Show the full hub network with this order's two-hop route drawn in blue → orange → red dashed.
-
-> "Here's what every order looks like across the network at a glance."
-
-6. Back on order detail, walk through the status dropdown: `AT_MAIN_HUB → IN_TRANSIT_TO_LOCAL_HUB → AT_LOCAL_HUB → OUT_FOR_DELIVERY`. The stepper progresses visually, **and the customer is getting a styled email at every step**.
-
-7. Open the **Customer tab** — paste the public tracking link (from the order detail "Copy public link" button).
-
-> "This is what the customer sees. Live status, route path, the seven-step semi-urban stepper. And right now…"
-
-8. Open the **Agent link** in a new tab (or scan to your phone). Tap **Start Broadcasting**. Allow location.
-
-> "The agent just went live. Watch the customer's screen."
-
-9. The blue agent pin appears on the customer's tracking page. Walk around (or use Chrome DevTools → Sensors → Location to fake movement). The pin updates every 4 seconds.
-
-10. Tap **Mark as Delivered** on the agent screen. The status flips to `DELIVERED` everywhere within the 5-second poll, and the customer gets the final email.
-
-> "From order placement to doorstep delivery, the customer sees every step. The vendor sees the whole network. The agent doesn't even need an app — just a link. That's SwiftDrop."
-
----
-
-## 8. User Journeys
+## 6. User Journeys
 
 ### Vendor journey (`/login` → `/dashboard` → `/orders/:id`)
 1. **Sign up / log in.** Email + password → JWT stored in `localStorage`.
@@ -300,7 +242,7 @@ Open three browser tabs side by side: **Vendor**, **Customer**, **Agent**.
 
 ---
 
-## 9. API Reference
+## 7. API Reference
 
 Base URL: `http://localhost:3000`
 
@@ -348,7 +290,7 @@ All routes accept either `Authorization: Bearer <JWT>` or `x-api-key: <key>`.
 
 ---
 
-## 10. Data Model
+## 8. Data Model
 
 ```prisma
 Vendor              # the seller
@@ -393,7 +335,7 @@ Order               # the parcel
 
 ---
 
-## 11. Engineering Decisions Worth Calling Out
+## 9. Engineering Decisions Worth Calling Out
 
 - **Three independent auth schemes**, one for each role, all working off Express middleware:
   - `flexAuth` — JWT *or* API key, used on the order routes so vendors can use their dashboard *or* hit the API directly.
@@ -413,26 +355,3 @@ Order               # the parcel
 - **Pre-seeded GPS positions for `OUT_FOR_DELIVERY` orders** in the seed file mean the live map looks alive from the moment you log in — no need to plug in a phone before judges sit down.
 
 - **Phase 2 status flow is split per-route-type.** Urban orders have 5 steps; semi-urban orders have 7. The status dropdown on the order detail page only shows the relevant subset, so a vendor demoing urban can never accidentally pick `IN_TRANSIT_TO_LOCAL_HUB`.
-
----
-
-## 12. What's Next (post-hackathon roadmap)
-
-- **Real geocoder + reverse-geocoding** so `pickupCity` / `deliveryCity` aren't string matched against a static table.
-- **Webhook callbacks** — vendors register a URL, we POST status changes to it. (The internals already have one place to bolt this in: [`backend/src/lib/email.ts`](backend/src/lib/email.ts) — the same call-site.)
-- **WebSocket live updates** instead of polling, once the volume justifies it.
-- **Agent app** (PWA → React Native) with background GPS so they don't have to keep the tab open.
-- **Admin / superuser** view for ops: see every vendor's volume, agent utilisation per hub, average dwell-time per status.
-- **Analytics dashboard** — delivery time histograms, top destination cities, percentage of semi-urban deliveries.
-- **PDF shipping labels** + bulk CSV import for high-volume vendors.
-
----
-
-## 13. Credits
-
-Built by **Code Pitchers** for the hackathon, with Claude Code as a paired coding assistant.
-
-Spec docs that drove the build live alongside the code:
-- [CLAUDE.md](CLAUDE.md) — Phase 1 (intake + tracking)
-- [CLAUDE_PHASE2.md](CLAUDE_PHASE2.md) — Phase 2 (hubs + routing + email)
-- [CLAUDE_PHASE3.md](CLAUDE_PHASE3.md) — Phase 3 (live agent tracking)
